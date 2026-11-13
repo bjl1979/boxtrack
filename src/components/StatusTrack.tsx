@@ -6,7 +6,7 @@ import { cx } from './ui';
 export function StatusTrack({ status, onDark }: { status: BoxStatus; onDark?: boolean }) {
   const current = BOX_STATUSES.indexOf(status);
   return (
-    <ol className="status-track mt-3 items-start" aria-label={`Status: ${STATUS_META[status].label}`}>
+    <ol className="mt-3 flex items-start" aria-label={`Status: ${STATUS_META[status].label}`}>
       {BOX_STATUSES.map((s, i) => {
         const done = i <= current;
         return (

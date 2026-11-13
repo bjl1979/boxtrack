@@ -19,7 +19,7 @@ export function ConfirmDialog({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-center p-6">
+    <div className="fixed inset-0 z-[90] grid place-items-center p-6">
       <div className="absolute inset-0 bg-black/60" onClick={onCancel} aria-hidden />
       <div role="alertdialog" aria-modal="true" aria-label={title} className="card relative w-full max-w-sm bg-surface p-6">
         <h2 className="text-lg font-semibold">{title}</h2>

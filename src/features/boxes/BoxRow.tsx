@@ -4,16 +4,6 @@ import { BlobImage, useNearViewport } from '../../components/LazyThumb';
 import { StatusTrack } from '../../components/StatusTrack';
 import { FLAG_META, STATUS_META } from './statusMeta';
 
-export function StatusPill({ status }: { status: Box['status'] }) {
-  const m = STATUS_META[status];
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-bg-deep px-2.5 py-1 text-xs font-medium">
-      <span className="size-2 rounded-full" style={{ background: m.color }} />
-      {m.label}
-    </span>
-  );
-}
-
 export function FlagIcons({ box, className }: { box: Box; className?: string }) {
   const on = FLAG_KEYS.filter((k) => box.flags[k]);
   if (!on.length) return null;
@@ -75,9 +65,6 @@ export function BoxRow({ box, itemCount }: { box: Box; itemCount: number }) {
           <FlagIcons box={box} className="mt-0.5 flex gap-1 text-sm" />
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1.5">
-          <span className="status-pill">
-            <StatusPill status={box.status} />
-          </span>
           <span className="text-xs text-muted">
             {itemCount} {itemCount === 1 ? 'item' : 'items'}
           </span>

@@ -9,9 +9,9 @@ function trackConsoleErrors(page: Page): string[] {
 
 async function startMove(page: Page, name = 'Doha → Kochi') {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Start your first move' })).toBeVisible();
-  await page.getByLabel('Move name').fill(name);
-  await page.getByRole('button', { name: 'Start packing' }).click();
+  await page.getByRole('button', { name: 'Get started' }).click();
+  await page.getByLabel('Plan name').fill(name);
+  await page.getByRole('button', { name: 'Create plan' }).click();
   await expect(page.getByRole('heading', { name })).toBeVisible();
 }
 
@@ -75,6 +75,7 @@ test('create a move, add boxes with "Save & next", edit, filter and delete', asy
 
   // Delete.
   await page.getByTestId('box-row').filter({ hasText: 'Kitchen – plates' }).click();
+  await page.getByRole('radio', { name: 'Details' }).click();
   await page.getByRole('button', { name: 'Delete box' }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
   await expect(page.getByTestId('box-row')).toHaveCount(1);
@@ -86,9 +87,9 @@ test('manage moves in settings', async ({ page }) => {
   const errors = trackConsoleErrors(page);
   await startMove(page, 'First move');
   await page.getByRole('link', { name: 'Settings' }).first().click();
-  await page.getByRole('button', { name: '+ New move' }).click();
-  await page.getByLabel('Move name').fill('Second move');
-  await page.getByRole('button', { name: 'Create and switch to it' }).click();
+  await page.getByRole('button', { name: '+ New plan' }).click();
+  await page.getByLabel('Plan name').fill('Second move');
+  await page.getByRole('button', { name: 'Create plan' }).click();
   await expect(page.getByTestId('move-card')).toHaveCount(2);
   await expect(page.getByTestId('move-card').filter({ hasText: 'Second move' })).toContainText('Active');
 
@@ -125,6 +126,37 @@ test('works offline once the service worker is installed', async ({ page, contex
   await page.reload();
   await expect(page.getByText('Packed offline')).toBeVisible();
   await context.setOffline(false);
+});
+
+test('home screen lists packing plans; tapping one opens its boxes', async ({ page }) => {
+  const errors = trackConsoleErrors(page);
+  await startMove(page, 'Doha → Kochi');
+  await page.getByRole('button', { name: 'New box' }).click();
+  await page.getByRole('group', { name: 'Status' }).getByRole('button', { name: 'Packed', exact: true }).click();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByTestId('box-number')).toHaveText('1');
+
+  await page.goto('/#/');
+  await expect(page.getByRole('img', { name: 'Moving truck at sunset' })).toBeVisible();
+  await page.getByRole('button', { name: '+ New plan' }).click();
+  await page.getByLabel('Plan name').fill('Storage unit');
+  await page.getByLabel('To (optional)').fill('Unit 14');
+  await page.getByRole('button', { name: 'Create plan' }).click();
+  await expect(page.getByRole('heading', { name: 'Storage unit' })).toBeVisible();
+
+  await page.getByRole('link', { name: 'Plans' }).click();
+  const cards = page.getByTestId('plan-card');
+  await expect(cards).toHaveCount(2);
+  await expect(cards.first()).toContainText('Storage unit'); // active plan first
+  await expect(cards.first()).toContainText('Active');
+  await expect(cards.first()).toContainText('Unit 14');
+  await expect(cards.nth(1)).toContainText('1 box');
+  await expect(cards.nth(1)).toContainText('Packed 1/1');
+
+  await cards.nth(1).click();
+  await expect(page.getByRole('heading', { name: 'Doha → Kochi' })).toBeVisible();
+  await expect(page.getByTestId('box-row')).toHaveCount(1);
+  expect(errors).toEqual([]);
 });
 
 test('manifest is installable', async ({ page, request }) => {

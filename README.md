@@ -4,8 +4,13 @@ Offline-first moving-box inventory. Number every box, record what is in it, and 
 "passport" or "drill" straight away. Everything is stored on the phone (IndexedDB); there is no
 server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
 
-**Status:** Phase 1 (foundation) – moves, box create/edit/delete, box list with summary,
-filters and sorting, installable PWA that works offline.
+**Status:** Phase 2 (contents) done.
+- **Packing plans** (one per move) on the home screen, each with Packed / Shipped / Delivered progress.
+- Boxes: create/edit/delete, "Save & next box", list with summary, filters and sorting.
+- Items: quick add (type `3x plates` for a quantity), quantity stepper, reorder, move to another box.
+- Photos: camera or gallery, compressed on the phone (1600 px JPEG + 300 px thumbnail), tagged
+  *contents* or *outside*, full-screen viewer with swipe and pinch-zoom.
+- Installable PWA that works fully offline.
 
 ## Install on Android (Add to Home screen)
 
@@ -58,7 +63,7 @@ Routing uses URL hashes (`#/boxes/…`), so no server rewrite rules are needed.
 ### Project layout
 
 - `src/db` – Dexie schema, data access functions and live-query hooks (the only code that touches IndexedDB)
-- `src/features/<feature>` – screens and logic per feature (boxes, moves, settings, …)
+- `src/features/<feature>` – screens and logic per feature (boxes, items, photos, moves = packing plans, settings, …)
 - `src/components` – shared UI (app shell, chips, sheets, dialogs, status ring)
-- `src/lib` – utilities (ids, storage)
+- `src/lib` – utilities (ids, storage, image compression)
 - `e2e` – Playwright tests; `scripts/gen-icons.mjs` regenerates the PWA icons from `public/favicon.svg`

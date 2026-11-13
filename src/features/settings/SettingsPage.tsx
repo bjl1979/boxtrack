@@ -77,7 +77,7 @@ export function SettingsPage() {
           value={tab}
           onChange={setTab}
           options={[
-            { value: 'moves', label: 'Moves' },
+            { value: 'moves', label: 'Plans' },
             { value: 'lists', label: 'Rooms & tags' },
             { value: 'storage', label: 'Storage' },
           ]}
@@ -88,11 +88,11 @@ export function SettingsPage() {
             <SectionTitle
               action={
                 <button type="button" className="min-h-11 px-2 font-semibold text-accent" onClick={() => setCreating(true)}>
-                  + New move
+                  + New plan
                 </button>
               }
             >
-              Your moves
+              Your packing plans
             </SectionTitle>
             <ul className="flex flex-col gap-3">
               {moves?.map((m) => (
@@ -142,16 +142,16 @@ export function SettingsPage() {
         )}
       </main>
 
-      <Sheet open={creating} title="New move" onClose={() => setCreating(false)}>
+      <Sheet open={creating} title="New packing plan" onClose={() => setCreating(false)}>
         <MoveForm
-          submitLabel="Create and switch to it"
+          submitLabel="Create plan"
           onSubmit={async (input) => {
             await createMove(input);
             setCreating(false);
           }}
         />
       </Sheet>
-      <Sheet open={!!renaming} title="Edit move" onClose={() => setRenaming(null)}>
+      <Sheet open={!!renaming} title="Edit plan" onClose={() => setRenaming(null)}>
         {renaming && (
           <MoveForm
             initial={renaming}
@@ -166,7 +166,7 @@ export function SettingsPage() {
       <ConfirmDialog
         open={!!archiving}
         title={`Archive "${archiving?.name}"?`}
-        body="Its boxes are kept and you can restore the move at any time."
+        body="Its boxes are kept and you can restore the plan at any time."
         confirmLabel="Archive"
         onCancel={() => setArchiving(null)}
         onConfirm={async () => {

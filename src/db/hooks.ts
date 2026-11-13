@@ -1,6 +1,6 @@
 // React hooks for live data. Components use these instead of touching Dexie directly.
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getActiveMove, listMoves } from './moves';
+import { getActiveMove, getMoveStats, listMoves } from './moves';
 import { getBox, getItemCounts, listBoxes } from './boxes';
 import { getSettings } from './settings';
 import { listItems } from './items';
@@ -50,4 +50,8 @@ export function useOtherBoxes(moveId: string | undefined, exceptBoxId: string | 
     async () => (moveId ? (await listBoxes(moveId)).filter((b) => b.id !== exceptBoxId) : []),
     [moveId, exceptBoxId],
   );
+}
+
+export function useMoveStats() {
+  return useLiveQuery(() => getMoveStats(), []);
 }

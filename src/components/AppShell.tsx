@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
-import { IconBack, IconHome, IconPlus, IconSettings } from './Icons';
+import { IconBack, IconBoxes, IconHome, IconPlus, IconSettings } from './Icons';
+import { useActiveMove } from '../db';
 import { cx } from './ui';
 
 /** Centered title header with optional round icon buttons either side. */
@@ -54,28 +55,32 @@ function Tab({ to, label, icon }: { to: string; label: string; icon: ReactNode }
   );
 }
 
-/** Bottom navigation with the orange hexagon "New box" action in the middle. */
+/** Bottom navigation with the round orange "New box" button in the middle. */
 export function BottomNav() {
   const navigate = useNavigate();
+  const move = useActiveMove();
   return (
     <nav
       aria-label="Main"
       className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-lg rounded-t-3xl bg-surface pb-safe shadow-[0_-12px_30px_-10px_rgb(0_0_0/0.6)]"
     >
-      <div className="relative flex items-end px-4">
-        <Tab to="/" label="Boxes" icon={<IconHome />} />
-        <div className="flex flex-1 flex-col items-center">
+      <div className="relative grid grid-cols-[1fr_1fr_5.5rem_1fr_1fr] items-end px-2">
+        <Tab to="/" label="Plans" icon={<IconHome />} />
+        <Tab to="/boxes" label="Boxes" icon={<IconBoxes />} />
+        <div className="flex flex-col items-center">
           <button
             type="button"
-            onClick={() => navigate('/boxes/new')}
+            onClick={() => navigate(move ? '/boxes/new' : '/')}
             aria-label="New box"
-            className="hex fab -mt-7 grid size-[4.5rem] place-items-center text-white shadow-lg active:scale-95"
+            className="fab -mt-7 grid size-16 place-items-center text-white active:scale-95"
           >
             <IconPlus width={30} height={30} strokeWidth={2.5} />
           </button>
           <span className="pb-2 text-xs text-muted">New box</span>
         </div>
-        <Tab to="/settings" label="Settings" icon={<IconSettings />} />
+        <div className="col-span-2 flex">
+          <Tab to="/settings" label="Settings" icon={<IconSettings />} />
+        </div>
       </div>
     </nav>
   );

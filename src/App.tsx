@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Outlet, createHashRouter } from 'react-router';
+import { Navigate, Outlet, createHashRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { useActiveMove, type Move } from './db';
 import { PlainLayout, TabLayout } from './components/AppShell';
@@ -7,14 +7,14 @@ import { UpdatePrompt } from './components/UpdatePrompt';
 import { BoxListPage } from './features/boxes/BoxListPage';
 import { BoxDetailPage } from './features/boxes/BoxDetailPage';
 import { EditBoxPage, NewBoxPage } from './features/boxes/BoxFormPage';
-import { WelcomePage } from './features/moves/WelcomePage';
+import { PlansHomePage } from './features/moves/PlansHomePage';
 import { SettingsPage } from './features/settings/SettingsPage';
 
-/** Renders the welcome screen until a move exists, then the given page with the active move. */
+/** Renders the page for the active packing plan; without one, goes back to the plans home screen. */
 function WithMove({ render }: { render: (move: Move) => ReactElement }) {
   const move = useActiveMove();
   if (move === undefined) return null;
-  if (move === null) return <WelcomePage />;
+  if (move === null) return <Navigate to="/" replace />;
   return render(move);
 }
 
@@ -35,7 +35,8 @@ const router = createHashRouter([
       {
         element: <TabLayout />,
         children: [
-          { index: true, element: <WithMove render={(m) => <BoxListPage key={m.id} move={m} />} /> },
+          { index: true, element: <PlansHomePage /> },
+          { path: 'boxes', element: <WithMove render={(m) => <BoxListPage key={m.id} move={m} />} /> },
           { path: 'settings', element: <SettingsPage /> },
         ],
       },
@@ -47,7 +48,7 @@ const router = createHashRouter([
           { path: 'boxes/:id/edit', element: <EditBoxPage /> },
         ],
       },
-      { path: '*', element: <WithMove render={(m) => <BoxListPage move={m} />} /> },
+      { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
 ]);

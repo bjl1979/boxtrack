@@ -46,3 +46,24 @@ describe('moves', () => {
     expect((await getActiveMove())?.id).toBe(a.id);
   });
 });
+
+describe('move stats', () => {
+  it('counts boxes per move by progress', async () => {
+    const { createBox } = await import('./boxes');
+    const { NO_FLAGS } = await import('./types');
+    const a = await createMove({ name: 'A' });
+    const b = await createMove({ name: 'B' });
+    const mk = (moveId: string, number: number, status: 'packing' | 'packed' | 'shipped' | 'delivered' | 'unpacked') =>
+      createBox({ moveId, number, status, flags: { ...NO_FLAGS } });
+    await mk(a.id, 1, 'packing');
+    await mk(a.id, 2, 'packed');
+    await mk(a.id, 3, 'shipped');
+    await mk(a.id, 4, 'unpacked');
+    await mk(b.id, 1, 'delivered');
+    const { getMoveStats } = await import('./moves');
+    expect(await getMoveStats()).toEqual({
+      [a.id]: { total: 4, packed: 3, shipped: 2, delivered: 1 },
+      [b.id]: { total: 1, packed: 1, shipped: 1, delivered: 1 },
+    });
+  });
+});

@@ -82,3 +82,23 @@ export async function unarchiveMove(id: string): Promise<void> {
     if (!hasActive) await db.moves.update(id, { isActive: true });
   });
 }
+
+export interface MoveStats {
+  total: number;
+  packed: number;
+  shipped: number;
+  delivered: number;
+}
+
+/** Box counts per move for the plans overview (reads box rows only, never photos). */
+export async function getMoveStats(): Promise<Record<string, MoveStats>> {
+  const out: Record<string, MoveStats> = {};
+  await db.boxes.each((b) => {
+    const s = (out[b.moveId] ??= { total: 0, packed: 0, shipped: 0, delivered: 0 });
+    s.total++;
+    if (b.status !== 'packing') s.packed++;
+    if (b.status === 'shipped' || b.status === 'delivered' || b.status === 'unpacked') s.shipped++;
+    if (b.status === 'delivered' || b.status === 'unpacked') s.delivered++;
+  });
+  return out;
+}

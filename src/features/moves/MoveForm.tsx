@@ -33,7 +33,7 @@ export function MoveForm({
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       <label className="flex flex-col gap-2 text-sm text-muted">
-        Move name
+        Plan name
         <input
           className={inputClass}
           value={name}

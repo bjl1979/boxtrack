@@ -77,11 +77,11 @@ export function BoxDetailPage() {
       );
   };
 
-  if (box === undefined) return <PageHeader title="Box" back="/" />;
+  if (box === undefined) return <PageHeader title="Box" back="/boxes" />;
   if (box === null)
     return (
       <>
-        <PageHeader title="Box" back="/" />
+        <PageHeader title="Box" back="/boxes" />
         <main className="px-4">
           <EmptyState title="Box not found" body="It may have been deleted." />
         </main>
@@ -92,7 +92,7 @@ export function BoxDetailPage() {
     <>
       <PageHeader
         title={`Box ${box.number}`}
-        back="/"
+        back="/boxes"
         right={
           <Link to={`/boxes/${box.id}/edit`} aria-label="Edit box" className="card grid size-12 place-items-center">
             <IconEdit />
@@ -193,7 +193,7 @@ export function BoxDetailPage() {
         onConfirm={async () => {
           setConfirm(false);
           await deleteBox(box.id);
-          navigate('/', { replace: true });
+          navigate('/boxes', { replace: true });
         }}
       />
     </>

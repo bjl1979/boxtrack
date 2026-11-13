@@ -4,7 +4,7 @@ import { BOX_STATUSES, useBoxes, useItemCounts, useSettings, type BoxStatus, typ
 import { PageHeader } from '../../components/AppShell';
 import { StatusRing } from '../../components/StatusRing';
 import { Chip, EmptyState, Segmented, SectionTitle, cx } from '../../components/ui';
-import { IconFilter, IconFlag, IconSettings, IconTag, IconX } from '../../components/Icons';
+import { IconFilter, IconFlag, IconTag, IconX } from '../../components/Icons';
 import { useSessionState } from '../../lib/usePersistentState';
 import { BoxRow } from './BoxRow';
 import { FilterSheet } from './FilterSheet';
@@ -58,12 +58,8 @@ export function BoxListPage({ move }: { move: Move }) {
     <>
       <PageHeader
         title={move.name}
-        subtitle="BoxTrack"
-        right={
-          <Link to="/settings" aria-label="Settings" className="card grid size-12 place-items-center">
-            <IconSettings />
-          </Link>
-        }
+        subtitle="Packing plan"
+        back="/"
       />
       <main className="px-4">
         <Segmented

@@ -48,7 +48,7 @@ export function EditBoxPage() {
   if (box === null)
     return (
       <>
-        <PageHeader title="Edit box" back="/" />
+        <PageHeader title="Edit box" back="/boxes" />
         <main className="px-4">
           <EmptyState title="Box not found" />
         </main>
