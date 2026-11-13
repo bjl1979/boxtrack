@@ -118,7 +118,7 @@ export function PlansHomePage() {
   return (
     <>
       <section className="relative">
-        <HeroTruck className="block aspect-[390/290] w-full" />
+        <HeroTruck className="h-[19rem] w-full" />
         <div className="absolute inset-x-0 top-0 flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),0.75rem)]">
           <span className="flex items-center gap-2 rounded-full bg-black/30 px-3 py-1.5 text-sm font-semibold backdrop-blur">
             <IconBoxes width={18} height={18} /> BoxTrack
