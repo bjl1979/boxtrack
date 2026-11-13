@@ -1,0 +1,93 @@
+@import 'tailwindcss';
+
+/* Design tokens (dark "wallet" template). A light theme can redefine these in phase 8. */
+:root {
+  --bg: #2a2a3c;
+  --bg-deep: #22222f;
+  --surface: #34344a;
+  --surface-2: #3e3e56;
+  --line: #4a4a64;
+  --text: #f4f4f8;
+  --muted: #a3a3bd;
+  --accent: #f28a3b;
+  --accent-2: #f5a65b;
+  --danger: #fb7185;
+
+  --c-packing: #fbbf24;
+  --c-packed: #a78bfa;
+  --c-shipped: #38bdf8;
+  --c-delivered: #34d399;
+  --c-unpacked: #94a3b8;
+  --c-missing: #fb7185;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* Raised card used throughout the template. */
+.card {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 100%, white 3%), var(--surface));
+  border-radius: 1.25rem;
+  box-shadow:
+    0 10px 24px -12px rgb(0 0 0 / 0.55),
+    inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+.inset {
+  background: var(--bg-deep);
+  border-radius: 1rem;
+  box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.35);
+}
+
+.hex {
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+input,
+textarea,
+select {
+  font-size: 16px; /* prevent zoom on focus in mobile browsers */
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
