@@ -127,7 +127,7 @@ export function PlansHomePage() {
             <IconSettings />
           </Link>
         </div>
-        <div className="-mt-4 px-5">
+        <div className="relative z-10 -mt-10 px-5">
           <h1 className="text-[2rem] leading-tight font-semibold">
             Smart moving,
             <br />
