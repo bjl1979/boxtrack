@@ -184,7 +184,7 @@ export function BoxForm({
       }}
       className="flex flex-col gap-5 px-4 pb-32"
     >
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b2a5c] via-[#7a2e6b] to-[var(--accent)] p-5 shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl hero-card p-5 shadow-xl">
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold tracking-[0.2em] text-white/70">BOX NUMBER</span>
           <input

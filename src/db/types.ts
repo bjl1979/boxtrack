@@ -58,6 +58,9 @@ export interface Photo {
   kind: PhotoKind;
   blob: Blob;
   thumbBlob: Blob;
+  /** Size of the stored (compressed) image in px. */
+  width?: number;
+  height?: number;
   createdAt: number;
   ocrText?: string;
   ocrStatus: OcrStatus;

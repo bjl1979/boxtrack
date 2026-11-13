@@ -23,6 +23,24 @@
   color-scheme: dark;
 }
 
+/* Alternative look: "shipping" – charcoal black, solid orange highlights, round + button. */
+:root[data-style='shipping'] {
+  --bg: #161618;
+  --bg-deep: #0e0e0f;
+  --surface: #252527;
+  --surface-2: #313134;
+  --line: #3b3b3f;
+  --text: #f5f5f5;
+  --muted: #9b9ba1;
+  --accent: #ea7a2f;
+  --accent-2: #f39a55;
+  --c-packing: #d6d6d6;
+  --c-packed: #f0a35e;
+  --c-shipped: #ea7a2f;
+  --c-delivered: #7dd3a8;
+  --c-unpacked: #8b8b92;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-deep: var(--bg-deep);
@@ -68,6 +86,35 @@ body {
 
 .hex {
   clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+}
+.fab {
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+}
+[data-style='shipping'] .hex {
+  clip-path: circle(48%);
+}
+
+/* Big box "card" on the box screen and form. */
+.hero-card {
+  background: linear-gradient(135deg, #3b2a5c, #7a2e6b 55%, var(--accent));
+}
+[data-style='shipping'] .hero-card {
+  background: var(--accent);
+}
+
+/* Status step tracker is part of the shipping look only. */
+.status-track {
+  display: none;
+}
+[data-style='shipping'] .status-track {
+  display: flex;
+}
+[data-style='shipping'] .status-pill {
+  display: none;
+}
+[data-style='shipping'] .card {
+  background: var(--surface);
+  box-shadow: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {

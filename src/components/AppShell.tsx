@@ -69,7 +69,7 @@ export function BottomNav() {
             type="button"
             onClick={() => navigate('/boxes/new')}
             aria-label="New box"
-            className="hex -mt-7 grid size-[4.5rem] place-items-center bg-gradient-to-b from-[var(--accent-2)] to-[var(--accent)] text-white shadow-lg active:scale-95"
+            className="hex fab -mt-7 grid size-[4.5rem] place-items-center text-white shadow-lg active:scale-95"
           >
             <IconPlus width={30} height={30} strokeWidth={2.5} />
           </button>
