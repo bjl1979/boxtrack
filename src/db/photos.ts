@@ -2,8 +2,9 @@ import { db } from './schema';
 import { ValidationError } from './errors';
 import { getSettings } from './settings';
 import { touchBox } from './touch';
-import type { Photo, PhotoKind } from './types';
+import type { OcrStatus, Photo, PhotoKind } from './types';
 import { newId } from '../lib/id';
+import { notifyBoxesChanged } from './changes';
 
 export interface NewPhoto {
   kind: PhotoKind;
@@ -63,12 +64,29 @@ export async function setPhotoKind(id: string, kind: PhotoKind): Promise<void> {
 }
 
 export async function deletePhoto(id: string): Promise<void> {
-  await db.transaction('rw', db.photos, db.boxes, async () => {
+  const boxId = await db.transaction('rw', db.photos, db.boxes, async () => {
     const photo = await db.photos.get(id);
-    if (!photo) return;
+    if (!photo) return null;
     await db.photos.delete(id);
     await touchBox(photo.boxId);
+    return photo.boxId;
   });
+  if (boxId) notifyBoxesChanged([boxId]);
+}
+
+/** Saves text read from (or typed for) a photo. Used by OCR and by the user editing that text. */
+export async function setPhotoOcrText(id: string, text: string | undefined, status: OcrStatus): Promise<void> {
+  const boxId = await db.transaction('rw', db.photos, async () => {
+    const photo = await db.photos.get(id);
+    if (!photo) return null;
+    const t = text?.trim();
+    const next: Photo = { ...photo, ocrStatus: status };
+    if (t) next.ocrText = t;
+    else delete next.ocrText;
+    await db.photos.put(next);
+    return photo.boxId;
+  });
+  if (boxId) notifyBoxesChanged([boxId]);
 }
 
 /** Thumbnail for the box list: the first "outside" photo, else the first photo. */

@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   MAX_QUANTITY,
   addItem,
@@ -20,8 +20,13 @@ import { inputClass } from '../moves/MoveForm';
 import { ItemEditSheet } from './ItemEditSheet';
 import { MoveToBoxSheet } from './MoveToBoxSheet';
 
-export function ItemsPanel({ box }: { box: Box }) {
+export function ItemsPanel({ box, highlightId }: { box: Box; highlightId?: string }) {
   const items = useItems(box.id);
+  const hasItems = !!items?.length;
+  // Scroll a search hit into view once the list has loaded.
+  useEffect(() => {
+    if (highlightId && hasItems) document.getElementById(`item-${highlightId}`)?.scrollIntoView({ block: 'center' });
+  }, [highlightId, hasItems]);
   const [draft, setDraft] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -101,7 +106,12 @@ export function ItemsPanel({ box }: { box: Box }) {
 
       <ul className="flex flex-col gap-2" aria-label="Items">
         {items?.map((item, i) => (
-          <li key={item.id} className="card flex min-h-16 items-center gap-2 py-2 pr-2 pl-4" data-testid="item-row">
+          <li
+            key={item.id}
+            id={`item-${item.id}`}
+            className={cx('card flex min-h-16 items-center gap-2 py-2 pr-2 pl-4', highlightId === item.id && 'ring-2 ring-accent')}
+            data-testid="item-row"
+          >
             {editMode ? (
               <>
                 <button

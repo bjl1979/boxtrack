@@ -9,6 +9,7 @@ import { BoxDetailPage } from './features/boxes/BoxDetailPage';
 import { EditBoxPage, NewBoxPage } from './features/boxes/BoxFormPage';
 import { PlansHomePage } from './features/moves/PlansHomePage';
 import { SettingsPage } from './features/settings/SettingsPage';
+import { SearchPage } from './features/search/SearchPage';
 
 /** Renders the page for the active packing plan; without one, goes back to the plans home screen. */
 function WithMove({ render }: { render: (move: Move) => ReactElement }) {
@@ -38,6 +39,7 @@ const router = createHashRouter([
           { index: true, element: <PlansHomePage /> },
           { path: 'boxes', element: <WithMove render={(m) => <BoxListPage key={m.id} move={m} />} /> },
           { path: 'settings', element: <SettingsPage /> },
+          { path: 'search', element: <WithMove render={(m) => <SearchPage key={m.id} move={m} />} /> },
         ],
       },
       {

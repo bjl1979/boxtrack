@@ -5,5 +5,7 @@ export * from './boxes';
 export * from './settings';
 export * from './items';
 export * from './photos';
+export * from './search';
+export * from './changes';
 export * from './hooks';
 export { db } from './schema';

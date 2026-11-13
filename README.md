@@ -4,12 +4,15 @@ Offline-first moving-box inventory. Number every box, record what is in it, and 
 "passport" or "drill" straight away. Everything is stored on the phone (IndexedDB); there is no
 server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
 
-**Status:** Phase 2 (contents) done.
+**Status:** Phase 3 (search) done.
 - **Packing plans** (one per move) on the home screen, each with Packed / Shipped / Delivered progress.
 - Boxes: create/edit/delete, "Save & next box", list with summary, filters and sorting.
 - Items: quick add (type `3x plates` for a quantity), quantity stepper, reorder, move to another box.
 - Photos: camera or gallery, compressed on the phone (1600 px JPEG + 300 px thumbnail), tagged
   *contents* or *outside*, full-screen viewer with swipe and pinch-zoom.
+- **Search** from the home screen, the box list or the Search tab: item names and notes, box labels
+  and notes, rooms, categories and photo text. Typos are fine ("passprt" finds "Passport"), and
+  typing a number jumps to that box. Tapping a result opens the box on the matching item or photo.
 - Installable PWA that works fully offline.
 
 ## Install on Android (Add to Home screen)

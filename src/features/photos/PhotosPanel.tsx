@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { addPhotos, type Box, type Photo, type PhotoKind } from '../../db';
 import { compressPhoto } from '../../lib/image';
 import { BlobImage } from '../../components/LazyThumb';
@@ -21,6 +21,10 @@ export function PhotosPanel({
   const [error, setError] = useState<string | null>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
+  const hasPhotos = photos.length > 0;
+  useEffect(() => {
+    if (highlightId && hasPhotos) document.getElementById(`photo-${highlightId}`)?.scrollIntoView({ block: 'center' });
+  }, [highlightId, hasPhotos]);
 
   async function onFiles(e: ChangeEvent<HTMLInputElement>) {
     const files = [...(e.target.files ?? [])];
@@ -92,7 +96,7 @@ export function PhotosPanel({
 
       <ul className="mt-4 grid grid-cols-3 gap-2" aria-label="Photos">
         {photos.map((p, i) => (
-          <li key={p.id}>
+          <li key={p.id} id={`photo-${p.id}`}>
             <button
               type="button"
               onClick={() => onOpen(p.id)}

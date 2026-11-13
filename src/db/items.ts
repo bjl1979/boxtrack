@@ -4,6 +4,7 @@ import { ValidationError } from './errors';
 import { touchBox } from './touch';
 import type { Item } from './types';
 import { newId } from '../lib/id';
+import { notifyBoxesChanged } from './changes';
 
 export const MAX_QUANTITY = 999;
 
@@ -56,7 +57,7 @@ async function nextPosition(boxId: string): Promise<number> {
 export async function addItem(boxId: string, input: ItemInput): Promise<Item> {
   const name = cleanName(input.name);
   const quantity = cleanQty(input.quantity);
-  return db.transaction('rw', db.items, db.boxes, async () => {
+  const created = await db.transaction('rw', db.items, db.boxes, async () => {
     if (!(await db.boxes.get(boxId))) throw new ValidationError('Box not found');
     const item: Item = { id: newId(), boxId, name, quantity, position: await nextPosition(boxId), createdAt: Date.now() };
     const note = input.note?.trim();
@@ -65,12 +66,14 @@ export async function addItem(boxId: string, input: ItemInput): Promise<Item> {
     await touchBox(boxId);
     return item;
   });
+  notifyBoxesChanged([boxId]);
+  return created;
 }
 
 export async function updateItem(id: string, input: ItemInput): Promise<void> {
   const name = cleanName(input.name);
   const quantity = cleanQty(input.quantity);
-  await db.transaction('rw', db.items, db.boxes, async () => {
+  const boxId = await db.transaction('rw', db.items, db.boxes, async () => {
     const item = await db.items.get(id);
     if (!item) throw new ValidationError('Item not found');
     const next: Item = { ...item, name, quantity };
@@ -79,7 +82,9 @@ export async function updateItem(id: string, input: ItemInput): Promise<void> {
     else delete next.note;
     await db.items.put(next);
     await touchBox(item.boxId);
+    return item.boxId;
   });
+  notifyBoxesChanged([boxId]);
 }
 
 export async function setItemQuantity(id: string, quantity: number): Promise<void> {
@@ -93,11 +98,14 @@ export async function setItemQuantity(id: string, quantity: number): Promise<voi
 }
 
 export async function deleteItems(ids: string[]): Promise<void> {
-  await db.transaction('rw', db.items, db.boxes, async () => {
+  const boxIds = await db.transaction('rw', db.items, db.boxes, async () => {
     const items = (await db.items.bulkGet(ids)).filter((i): i is Item => !!i);
     await db.items.bulkDelete(ids);
-    for (const boxId of new Set(items.map((i) => i.boxId))) await touchBox(boxId);
+    const boxIds = new Set(items.map((i) => i.boxId));
+    for (const boxId of boxIds) await touchBox(boxId);
+    return boxIds;
   });
+  notifyBoxesChanged(boxIds);
 }
 
 /** Saves a new order for a box's items. `orderedIds` must contain exactly the box's items. */
@@ -115,7 +123,7 @@ export async function reorderItems(boxId: string, orderedIds: string[]): Promise
 
 /** Moves items (keeping their relative order) to the end of another box. */
 export async function moveItems(ids: string[], targetBoxId: string): Promise<void> {
-  await db.transaction('rw', db.items, db.boxes, async () => {
+  const changed = await db.transaction('rw', db.items, db.boxes, async () => {
     const target = await db.boxes.get(targetBoxId);
     if (!target) throw new ValidationError('Target box not found');
     const items = (await db.items.bulkGet(ids))
@@ -130,5 +138,7 @@ export async function moveItems(ids: string[], targetBoxId: string): Promise<voi
     }
     for (const s of sources) await touchBox(s);
     await touchBox(targetBoxId);
+    return [...sources, targetBoxId];
   });
+  notifyBoxesChanged(changed);
 }

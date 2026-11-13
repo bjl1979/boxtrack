@@ -140,7 +140,7 @@ export function BoxDetailPage() {
           />
         </div>
 
-        {tab === 'items' && <ItemsPanel box={box} />}
+        {tab === 'items' && <ItemsPanel box={box} highlightId={highlightId} />}
         {tab === 'photos' && photos && <PhotosPanel box={box} photos={photos} highlightId={highlightId} onOpen={openPhoto} />}
         {tab === 'details' && (
           <>

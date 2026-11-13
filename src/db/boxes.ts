@@ -3,6 +3,7 @@ import { db } from './schema';
 import { DuplicateBoxNumberError, ValidationError } from './errors';
 import { BOX_SIZES, BOX_STATUSES, NO_FLAGS, type Box, type BoxInput, type BoxStatus } from './types';
 import { newId } from '../lib/id';
+import { notifyBoxesChanged } from './changes';
 
 /** Drops keys whose value is undefined so cleared fields are really removed from storage. */
 function compact<T extends object>(obj: T): T {
@@ -63,18 +64,20 @@ export async function getNextBoxNumber(moveId: string): Promise<number> {
 
 export async function createBox(input: BoxInput): Promise<Box> {
   const data = normaliseBoxInput(input);
-  return db.transaction('rw', db.boxes, async () => {
+  const box = await db.transaction('rw', db.boxes, async () => {
     if (await numberTaken(data.moveId, data.number)) throw new DuplicateBoxNumberError(data.number);
     const now = Date.now();
     const box: Box = { id: newId(), ...data, createdAt: now, updatedAt: now };
     await db.boxes.add(box);
     return box;
   });
+  notifyBoxesChanged([box.id]);
+  return box;
 }
 
 export async function updateBox(id: string, input: BoxInput): Promise<Box> {
   const data = normaliseBoxInput(input);
-  return db.transaction('rw', db.boxes, async () => {
+  const box = await db.transaction('rw', db.boxes, async () => {
     const existing = await db.boxes.get(id);
     if (!existing) throw new ValidationError('Box not found');
     if (await numberTaken(data.moveId, data.number, id)) throw new DuplicateBoxNumberError(data.number);
@@ -83,6 +86,8 @@ export async function updateBox(id: string, input: BoxInput): Promise<Box> {
     await db.boxes.put(box);
     return box;
   });
+  notifyBoxesChanged([id]);
+  return box;
 }
 
 export async function setBoxStatus(ids: string[], status: BoxStatus): Promise<void> {
@@ -100,6 +105,7 @@ export async function deleteBox(id: string): Promise<void> {
     await db.photos.where('boxId').equals(id).delete();
     await db.boxes.delete(id);
   });
+  notifyBoxesChanged([id]);
 }
 
 export async function getBox(id: string): Promise<Box | undefined> {

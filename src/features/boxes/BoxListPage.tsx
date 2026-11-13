@@ -7,6 +7,7 @@ import { Chip, EmptyState, Segmented, SectionTitle, cx } from '../../components/
 import { IconFilter, IconFlag, IconTag, IconX } from '../../components/Icons';
 import { useSessionState } from '../../lib/usePersistentState';
 import { BoxRow } from './BoxRow';
+import { SearchBar } from '../search/SearchBar';
 import { FilterSheet } from './FilterSheet';
 import { EMPTY_FILTERS, activeFilterCount, filterBoxes, sortBoxes, summarise, type BoxFilters, type SortKey } from './filters';
 import { STATUS_META } from './statusMeta';
@@ -62,6 +63,9 @@ export function BoxListPage({ move }: { move: Move }) {
         back="/"
       />
       <main className="px-4">
+        <div className="mb-3">
+          <SearchBar />
+        </div>
         <Segmented
           label="Sort boxes"
           value={sort}

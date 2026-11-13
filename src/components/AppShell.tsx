@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
-import { IconBack, IconBoxes, IconHome, IconPlus, IconSettings } from './Icons';
+import { IconBack, IconBoxes, IconHome, IconPlus, IconSearch, IconSettings } from './Icons';
 import { useActiveMove } from '../db';
 import { cx } from './ui';
 
@@ -78,9 +78,8 @@ export function BottomNav() {
           </button>
           <span className="pb-2 text-xs text-muted">New box</span>
         </div>
-        <div className="col-span-2 flex">
-          <Tab to="/settings" label="Settings" icon={<IconSettings />} />
-        </div>
+        <Tab to="/search" label="Search" icon={<IconSearch />} />
+        <Tab to="/settings" label="Settings" icon={<IconSettings />} />
       </div>
     </nav>
   );

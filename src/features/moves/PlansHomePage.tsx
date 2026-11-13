@@ -6,6 +6,7 @@ import { IconBoxes, IconSettings } from '../../components/Icons';
 import { Sheet } from '../../components/Sheet';
 import { SectionTitle, cx } from '../../components/ui';
 import { MoveForm } from './MoveForm';
+import { SearchBar } from '../search/SearchBar';
 
 const EMPTY: MoveStats = { total: 0, packed: 0, shipped: 0, delivered: 0 };
 
@@ -156,6 +157,9 @@ export function PlansHomePage() {
 
         {live.length > 0 && (
           <>
+            <div className="mt-5">
+              <SearchBar placeholder="Search your boxes…" />
+            </div>
             <SectionTitle
               action={
                 <button type="button" className="min-h-11 px-2 font-semibold text-accent" onClick={() => setCreating(true)}>
