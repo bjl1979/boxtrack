@@ -39,13 +39,27 @@ export function Chip({
       type="button"
       aria-pressed={selected}
       {...rest}
+      // Coloured chips (statuses) fill with their own colour when selected instead of the orange ring.
+      style={
+        selected && dot
+          ? {
+              background: `color-mix(in oklab, ${dot} 28%, var(--surface))`,
+              boxShadow: `inset 0 0 0 1.5px color-mix(in oklab, ${dot} 70%, transparent)`,
+            }
+          : undefined
+      }
       className={cx(
         'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium whitespace-nowrap transition active:scale-95',
-        selected ? 'bg-surface-2 text-text ring-2 ring-accent' : 'inset text-muted',
+        selected ? (dot ? 'font-semibold text-text' : 'bg-surface-2 text-text ring-2 ring-accent') : 'inset text-muted',
         className,
       )}
     >
-      {dot && <span className="size-2.5 rounded-full" style={{ background: dot }} />}
+      {dot && (
+        <span
+          className="size-2.5 rounded-full"
+          style={{ background: dot, boxShadow: selected ? `0 0 8px ${dot}` : undefined }}
+        />
+      )}
       {children}
     </button>
   );
