@@ -18,6 +18,7 @@ import { Button, SectionTitle, Segmented } from '../../components/ui';
 import { formatBytes, getStorageInfo, type StorageInfo } from '../../lib/storage';
 import { MoveForm } from '../moves/MoveForm';
 import { ListEditor } from './ListEditor';
+import { OcrSettings } from './OcrSettings';
 
 function MoveCard({ move, onRename, onArchive }: { move: Move; onRename: () => void; onArchive: () => void }) {
   return (
@@ -58,7 +59,7 @@ function MoveCard({ move, onRename, onArchive }: { move: Move; onRename: () => v
 export function SettingsPage() {
   const moves = useMoves();
   const settings = useSettings();
-  const [tab, setTab] = useState<'moves' | 'lists' | 'storage'>('moves');
+  const [tab, setTab] = useState<'moves' | 'lists' | 'ocr' | 'storage'>('moves');
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<Move | null>(null);
   const [archiving, setArchiving] = useState<Move | null>(null);
@@ -78,7 +79,8 @@ export function SettingsPage() {
           onChange={setTab}
           options={[
             { value: 'moves', label: 'Plans' },
-            { value: 'lists', label: 'Rooms & tags' },
+            { value: 'lists', label: 'Lists' },
+            { value: 'ocr', label: 'Photo text' },
             { value: 'storage', label: 'Storage' },
           ]}
         />
@@ -108,6 +110,13 @@ export function SettingsPage() {
             <ListEditor label="Rooms" values={settings.rooms} onChange={(v) => void setRooms(v)} />
             <SectionTitle>Categories</SectionTitle>
             <ListEditor label="Categories" values={settings.categories} onChange={(v) => void setCategories(v)} />
+          </>
+        )}
+
+        {tab === 'ocr' && settings && (
+          <>
+            <SectionTitle>Photo text (OCR)</SectionTitle>
+            <OcrSettings settings={settings} />
           </>
         )}
 

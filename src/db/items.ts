@@ -70,6 +70,30 @@ export async function addItem(boxId: string, input: ItemInput): Promise<Item> {
   return created;
 }
 
+/** Adds several items to a box in one transaction (e.g. from photo text). */
+export async function addItems(boxId: string, inputs: ItemInput[]): Promise<Item[]> {
+  const clean = inputs.map((i) => ({ name: cleanName(i.name), quantity: cleanQty(i.quantity), note: i.note?.trim() }));
+  const created = await db.transaction('rw', db.items, db.boxes, async () => {
+    if (!(await db.boxes.get(boxId))) throw new ValidationError('Box not found');
+    let position = await nextPosition(boxId);
+    const now = Date.now();
+    const rows: Item[] = clean.map((c, i) => ({
+      id: newId(),
+      boxId,
+      name: c.name,
+      quantity: c.quantity,
+      ...(c.note ? { note: c.note } : {}),
+      position: position++,
+      createdAt: now + i,
+    }));
+    await db.items.bulkAdd(rows);
+    await touchBox(boxId);
+    return rows;
+  });
+  notifyBoxesChanged([boxId]);
+  return created;
+}
+
 export async function updateItem(id: string, input: ItemInput): Promise<void> {
   const name = cleanName(input.name);
   const quantity = cleanQty(input.quantity);

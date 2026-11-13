@@ -24,7 +24,9 @@ export function PhotoViewer({
   onClose,
   onKind,
   onDelete,
+  onText,
 }: {
+  onText: (photo: Photo) => void;
   photos: Photo[];
   index: number;
   onIndex: (i: number) => void;
@@ -185,9 +187,21 @@ export function PhotoViewer({
       </div>
 
       <div className="px-4 pt-2 pb-[max(env(safe-area-inset-bottom),1rem)]">
-        <div className="flex rounded-2xl bg-white/10 p-1" role="group" aria-label="Photo type">
-          {kindBtn('contents', 'Contents')}
-          {kindBtn('outside', 'Outside')}
+        <div className="flex gap-2">
+          <div className="flex flex-1 rounded-2xl bg-white/10 p-1" role="group" aria-label="Photo type">
+            {kindBtn('contents', 'Contents')}
+            {kindBtn('outside', 'Outside')}
+          </div>
+          <button
+            type="button"
+            onClick={() => onText(photo)}
+            className="relative min-h-13 rounded-2xl bg-[var(--accent)] px-4 text-sm font-semibold text-white"
+          >
+            Text in photo
+            {photo.ocrStatus === 'pending' && (
+              <span className="absolute -top-1 -right-1 size-3 animate-pulse rounded-full bg-white" aria-label="reading text" />
+            )}
+          </button>
         </div>
         <p className="mt-2 text-center text-xs text-white/50">Swipe for next photo · pinch or double-tap to zoom</p>
       </div>

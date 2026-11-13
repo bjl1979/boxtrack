@@ -4,7 +4,7 @@ Offline-first moving-box inventory. Number every box, record what is in it, and 
 "passport" or "drill" straight away. Everything is stored on the phone (IndexedDB); there is no
 server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
 
-**Status:** Phase 3 (search) done.
+**Status:** Phase 4 (photo text / OCR) done.
 - **Packing plans** (one per move) on the home screen, each with Packed / Shipped / Delivered progress.
 - Boxes: create/edit/delete, "Save & next box", list with summary, filters and sorting.
 - Items: quick add (type `3x plates` for a quantity), quantity stepper, reorder, move to another box.
@@ -13,7 +13,11 @@ server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
 - **Search** from the home screen, the box list or the Search tab: item names and notes, box labels
   and notes, rooms, categories and photo text. Typos are fine ("passprt" finds "Passport"), and
   typing a number jumps to that box. Tapping a result opens the box on the matching item or photo.
-- Installable PWA that works fully offline.
+- **Photo text (OCR):** contents photos are read in the background on the phone (Tesseract.js in
+  a Web Worker, one photo at a time). The text is searchable, can be corrected by hand, and can be
+  turned into items. Switch it on/off or re-read everything in Settings → Photo text.
+- Installable PWA that works fully offline. The OCR engine and English language data (~9 MB)
+  are bundled and cached on the first visit, so open the app once on Wi-Fi before going offline.
 
 ## Install on Android (Add to Home screen)
 
@@ -69,4 +73,5 @@ Routing uses URL hashes (`#/boxes/…`), so no server rewrite rules are needed.
 - `src/features/<feature>` – screens and logic per feature (boxes, items, photos, moves = packing plans, settings, …)
 - `src/components` – shared UI (app shell, chips, sheets, dialogs, status ring)
 - `src/lib` – utilities (ids, storage, image compression)
+- `public/ocr` – OCR engine and language data, copied from `node_modules` by `scripts/copy-ocr-assets.mjs` before `dev`/`build` (not committed)
 - `e2e` – Playwright tests; `scripts/gen-icons.mjs` regenerates the PWA icons from `public/favicon.svg`

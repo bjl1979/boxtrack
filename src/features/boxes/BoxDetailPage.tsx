@@ -8,6 +8,8 @@ import { Button, Chip, EmptyState, Segmented } from '../../components/ui';
 import { ItemsPanel } from '../items/ItemsPanel';
 import { PhotosPanel } from '../photos/PhotosPanel';
 import { PhotoViewer } from '../photos/PhotoViewer';
+import { OcrTextSheet } from '../ocr/OcrTextSheet';
+import { useToast } from '../../components/Toast';
 import { FlagIcons, roomsText } from './BoxRow';
 import { STATUS_META } from './statusMeta';
 import { StatusTrack } from '../../components/StatusTrack';
@@ -36,6 +38,9 @@ export function BoxDetailPage() {
   const photos = usePhotos(id);
   const [confirm, setConfirm] = useState(false);
   const [deletingPhoto, setDeletingPhoto] = useState<Photo | null>(null);
+  const [textPhotoId, setTextPhotoId] = useState<string | null>(null);
+  const toast = useToast();
+  const textPhoto = textPhotoId ? photos?.find((p) => p.id === textPhotoId) : undefined;
 
   // Tab and open photo live in the URL, so the Android back button closes the viewer first.
   const tab = (params.get('tab') as Tab | null) ?? (params.get('photo') ? 'photos' : 'items');
@@ -164,8 +169,21 @@ export function BoxDetailPage() {
           onClose={closeViewer}
           onKind={(p, k) => void setPhotoKind(p.id, k)}
           onDelete={(p) => setDeletingPhoto(p)}
+          onText={(p) => setTextPhotoId(p.id)}
         />
       )}
+      {textPhoto && (
+        <OcrTextSheet
+          key={textPhoto.id}
+          photo={textPhoto}
+          onClose={() => setTextPhotoId(null)}
+          onItemsAdded={(n) => {
+            setTextPhotoId(null);
+            toast.show(`${n} ${n === 1 ? 'item' : 'items'} added`);
+          }}
+        />
+      )}
+      {toast.node}
 
       <ConfirmDialog
         open={!!deletingPhoto}

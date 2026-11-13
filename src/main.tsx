@@ -4,9 +4,11 @@ import './index.css';
 import { App } from './App';
 import { requestPersistentStorageOnce } from './lib/storage';
 import { startSearchIndex } from './features/search/searchIndex';
+import { startOcrQueue } from './features/ocr/ocrQueue';
 
 void requestPersistentStorageOnce();
 startSearchIndex();
+startOcrQueue();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

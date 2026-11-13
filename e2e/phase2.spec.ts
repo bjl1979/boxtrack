@@ -184,8 +184,9 @@ test('items and photos work offline', async ({ page, context }) => {
   await page.getByLabel('Plan name').fill('Offline');
   await page.getByRole('button', { name: 'Create plan' }).click();
   await expect(page.getByRole('heading', { name: 'Offline' })).toBeVisible();
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
   await page.reload();
-  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller), { timeout: 60_000 }).toBe(true);
   await context.setOffline(true);
   await page.reload();
   await page.getByRole('button', { name: 'New box' }).click();

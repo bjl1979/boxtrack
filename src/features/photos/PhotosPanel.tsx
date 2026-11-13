@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { addPhotos, type Box, type Photo, type PhotoKind } from '../../db';
+import { addPhotos, useSettings, type Box, type Photo, type PhotoKind } from '../../db';
+import { useOcrCurrent } from '../ocr/useOcrActivity';
 import { compressPhoto } from '../../lib/image';
 import { BlobImage } from '../../components/LazyThumb';
 import { IconCamera, IconImage } from '../../components/Icons';
@@ -21,6 +22,8 @@ export function PhotosPanel({
   const [error, setError] = useState<string | null>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
+  const settings = useSettings();
+  const ocrCurrent = useOcrCurrent();
   const hasPhotos = photos.length > 0;
   useEffect(() => {
     if (highlightId && hasPhotos) document.getElementById(`photo-${highlightId}`)?.scrollIntoView({ block: 'center' });
@@ -111,6 +114,20 @@ export function PhotosPanel({
               <span className="absolute bottom-1 left-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
                 {p.kind === 'outside' ? 'Outside' : 'Contents'}
               </span>
+              {p.ocrStatus === 'pending' && settings?.ocrEnabled && (
+                <span
+                  className="absolute top-1 left-1 flex items-center gap-1 rounded-full bg-black/70 px-2 py-0.5 text-[10px] text-white"
+                  data-testid="ocr-reading"
+                >
+                  <span className={`size-1.5 rounded-full bg-[var(--accent)] ${ocrCurrent === p.id ? 'animate-pulse' : ''}`} />
+                  {ocrCurrent === p.id ? 'Reading text…' : 'Queued'}
+                </span>
+              )}
+              {p.ocrText && p.ocrStatus !== 'pending' && (
+                <span className="absolute top-1 right-1 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white" title="Has text" data-testid="ocr-has-text">
+                  Aa
+                </span>
+              )}
             </button>
           </li>
         ))}

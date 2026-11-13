@@ -8,7 +8,10 @@ export function Sheet({
   onClose,
   children,
   footer,
+  onTop,
 }: {
+  /** Show above full-screen overlays such as the photo viewer. */
+  onTop?: boolean;
   open: boolean;
   title: string;
   onClose: () => void;
@@ -24,7 +27,7 @@ export function Sheet({
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end">
+    <div className={`fixed inset-0 flex flex-col justify-end ${onTop ? 'z-[85]' : 'z-50'}`}>
       <div className="absolute inset-0 bg-black/60" onClick={onClose} aria-hidden />
       <div
         role="dialog"

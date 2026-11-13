@@ -29,7 +29,7 @@ export async function getPhoto(id: string): Promise<Photo | undefined> {
  */
 export async function addPhotos(boxId: string, photos: NewPhoto[]): Promise<Photo[]> {
   const { ocrEnabled } = await getSettings();
-  return db.transaction('rw', db.photos, db.boxes, async () => {
+  const added = await db.transaction('rw', db.photos, db.boxes, async () => {
     if (!(await db.boxes.get(boxId))) throw new ValidationError('Box not found');
     const now = Date.now();
     const rows: Photo[] = photos.map((p, i) => ({
@@ -46,11 +46,13 @@ export async function addPhotos(boxId: string, photos: NewPhoto[]): Promise<Phot
     await touchBox(boxId);
     return rows;
   });
+  notifyBoxesChanged([boxId]);
+  return added;
 }
 
 export async function setPhotoKind(id: string, kind: PhotoKind): Promise<void> {
   const { ocrEnabled } = await getSettings();
-  await db.transaction('rw', db.photos, db.boxes, async () => {
+  const boxId = await db.transaction('rw', db.photos, db.boxes, async () => {
     const photo = await db.photos.get(id);
     if (!photo) throw new ValidationError('Photo not found');
     const patch: Partial<Photo> = { kind };
@@ -60,7 +62,20 @@ export async function setPhotoKind(id: string, kind: PhotoKind): Promise<void> {
     }
     await db.photos.update(id, patch);
     await touchBox(photo.boxId);
+    return photo.boxId;
   });
+  notifyBoxesChanged([boxId]);
+}
+
+/** Queues one photo to be read again. */
+export async function requeueOcr(id: string): Promise<void> {
+  const boxId = await db.transaction('rw', db.photos, async () => {
+    const photo = await db.photos.get(id);
+    if (!photo) return null;
+    await db.photos.update(id, { ocrStatus: 'pending' });
+    return photo.boxId;
+  });
+  if (boxId) notifyBoxesChanged([boxId]);
 }
 
 export async function deletePhoto(id: string): Promise<void> {
@@ -94,4 +109,29 @@ export async function getCoverThumb(boxId: string): Promise<Blob | null> {
   const photos = await listPhotos(boxId);
   const cover = photos.find((p) => p.kind === 'outside') ?? photos[0];
   return cover?.thumbBlob ?? null;
+}
+
+/** The oldest photo waiting for OCR, or undefined. */
+export async function getNextPendingOcrPhoto(): Promise<Photo | undefined> {
+  const pending = await db.photos.where('ocrStatus').equals('pending').toArray();
+  return pending.sort((a, b) => a.createdAt - b.createdAt)[0];
+}
+
+export async function countPendingOcr(): Promise<number> {
+  return db.photos.where('ocrStatus').equals('pending').count();
+}
+
+/** Queues OCR again for every contents photo (replacing text read earlier). Returns how many. */
+export async function requeueOcrForAllPhotos(): Promise<number> {
+  const boxIds = new Set<string>();
+  const n = await db.transaction('rw', db.photos, async () =>
+    db.photos
+      .filter((p) => p.kind === 'contents')
+      .modify((p) => {
+        p.ocrStatus = 'pending';
+        boxIds.add(p.boxId);
+      }),
+  );
+  notifyBoxesChanged(boxIds);
+  return n;
 }

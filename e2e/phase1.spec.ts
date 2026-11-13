@@ -94,7 +94,7 @@ test('manage moves in settings', async ({ page }) => {
   await expect(page.getByTestId('move-card').filter({ hasText: 'Second move' })).toContainText('Active');
 
   // Edit room list.
-  await page.getByRole('radio', { name: 'Rooms & tags' }).click();
+  await page.getByRole('radio', { name: 'Lists' }).click();
   await page.getByLabel('New room').fill('Loft');
   await page.getByRole('button', { name: 'Add' }).first().click();
   await expect(page.getByRole('list', { name: 'Rooms' })).toContainText('Loft');
@@ -113,8 +113,9 @@ test('works offline once the service worker is installed', async ({ page, contex
     return !!reg.active;
   });
   // Make sure the page is controlled by the SW before going offline.
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
   await page.reload();
-  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller), { timeout: 60_000 }).toBe(true);
 
   await context.setOffline(true);
   await page.reload();

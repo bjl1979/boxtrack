@@ -33,7 +33,18 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,jpg,ico,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,ico,webmanifest}', 'ocr/eng.traineddata'],
+        // The non-SIMD OCR engine is only for old devices: cache it on first use instead of up front.
+        globIgnores: ['ocr/tesseract-core-lstm.wasm.js'],
+        // OCR engine (~4 MB) and English language data (~4 MB) are precached so OCR works offline.
+        maximumFileSizeToCacheInBytes: 12 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.endsWith('/ocr/tesseract-core-lstm.wasm.js'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'ocr-fallback' },
+          },
+        ],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
       },

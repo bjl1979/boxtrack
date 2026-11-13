@@ -111,8 +111,9 @@ test('photo text is searchable, survives a reload (index rebuilt) and opens the 
 test('search is reachable from home and the box list, and works offline', async ({ page, context }) => {
   await start(page);
   await addBox(page, 1, 'Bedroom', ['Drill']);
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
   await page.reload();
-  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller), { timeout: 60_000 }).toBe(true);
   await context.setOffline(true);
   await page.goto('/#/');
   await page.getByTestId('search-bar').click();
