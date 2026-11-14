@@ -12,7 +12,8 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "e2e": "npm run build && playwright test --trace off"
+    "e2e": "npm run build && playwright test --trace off",
+    "perf": "npm run build && PERF=1 playwright test e2e/perf.spec.ts --trace off"
   },
   "dependencies": {
     "@tesseract.js-data/eng": "^1.0.0",

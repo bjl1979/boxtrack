@@ -3,6 +3,8 @@ import { defineConfig, devices } from '@playwright/test';
 // E2E runs against the production build (vite preview) so the service worker is real.
 export default defineConfig({
   testDir: './e2e',
+  // The performance check is heavy (≈100 MB of photos); run it with `npm run perf`.
+  testIgnore: process.env.PERF ? [] : ['perf.spec.ts'],
   fullyParallel: false,
   // OCR tests keep a CPU core busy; with more workers the camera-scan tests can starve and time out.
   workers: 2,
