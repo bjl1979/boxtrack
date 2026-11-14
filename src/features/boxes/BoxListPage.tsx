@@ -4,7 +4,7 @@ import { BOX_STATUSES, useBoxes, useItemCounts, useSettings, type BoxStatus, typ
 import { PageHeader } from '../../components/AppShell';
 import { StatusRing } from '../../components/StatusRing';
 import { Chip, EmptyState, Segmented, SectionTitle, cx } from '../../components/ui';
-import { IconFilter, IconFlag, IconTag, IconX } from '../../components/Icons';
+import { IconFilter, IconFlag, IconPrinter, IconQr, IconTag, IconX } from '../../components/Icons';
 import { useSessionState } from '../../lib/usePersistentState';
 import { BoxRow } from './BoxRow';
 import { SearchBar } from '../search/SearchBar';
@@ -61,6 +61,11 @@ export function BoxListPage({ move }: { move: Move }) {
         title={move.name}
         subtitle="Packing plan"
         back="/"
+        right={
+          <Link to="/scan" aria-label="Scan label" className="card grid size-12 place-items-center">
+            <IconQr />
+          </Link>
+        }
       />
       <main className="px-4">
         <div className="mb-3">
@@ -107,11 +112,16 @@ export function BoxListPage({ move }: { move: Move }) {
 
         <SectionTitle
           action={
-            nFilters > 0 && boxes ? (
-              <span className="text-xs text-muted">
-                {visible.length} of {boxes.length}
-              </span>
-            ) : undefined
+            <span className="flex items-center gap-3">
+              {nFilters > 0 && boxes && (
+                <span className="text-xs text-muted">
+                  {visible.length} of {boxes.length}
+                </span>
+              )}
+              <Link to="/labels" className="flex min-h-11 items-center gap-1.5 px-1 text-sm font-semibold text-accent">
+                <IconPrinter width={18} height={18} /> Print labels
+              </Link>
+            </span>
           }
         >
           Boxes

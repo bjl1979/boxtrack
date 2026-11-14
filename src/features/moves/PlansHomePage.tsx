@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { createMove, setActiveMove, useMoveStats, useMoves, type Move, type MoveStats } from '../../db';
 import { HeroTruck } from '../../components/HeroTruck';
-import { IconBoxes, IconSettings } from '../../components/Icons';
+import { IconBoxes, IconQr, IconSettings } from '../../components/Icons';
 import { Sheet } from '../../components/Sheet';
 import { SectionTitle, cx } from '../../components/ui';
 import { MoveForm } from './MoveForm';
@@ -124,9 +124,16 @@ export function PlansHomePage() {
           <span className="flex items-center gap-2 rounded-full bg-black/30 px-3 py-1.5 text-sm font-semibold backdrop-blur">
             <IconBoxes width={18} height={18} /> BoxTrack
           </span>
-          <Link to="/settings" aria-label="Settings" className="grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur">
-            <IconSettings />
-          </Link>
+          <span className="flex gap-2">
+            {live.length > 0 && (
+              <Link to="/scan" aria-label="Scan label" className="grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur">
+                <IconQr />
+              </Link>
+            )}
+            <Link to="/settings" aria-label="Settings" className="grid size-11 place-items-center rounded-full bg-black/30 backdrop-blur">
+              <IconSettings />
+            </Link>
+          </span>
         </div>
         <div className="relative z-10 -mt-10 px-5">
           <h1 className="text-[2rem] leading-tight font-semibold">

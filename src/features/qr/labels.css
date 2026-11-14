@@ -1,0 +1,142 @@
+/* Printable A4 label sheets. Black on white, sized in mm so they print true to size. */
+.sheet {
+  width: 210mm;
+  height: 297mm;
+  padding: 8mm;
+  background: #fff;
+  color: #000;
+  display: grid;
+  gap: 4mm;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.sheet[data-per-page='8'] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, 1fr);
+}
+.sheet[data-per-page='4'] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(2, 1fr);
+}
+.label {
+  border: 0.6mm dashed #999;
+  border-radius: 3mm;
+  padding: 4mm;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+.label-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 3mm;
+}
+.label-number {
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  font-size: 30mm;
+}
+.sheet[data-per-page='4'] .label-number {
+  font-size: 55mm;
+}
+.label-qr {
+  width: 30mm;
+  height: 30mm;
+  flex-shrink: 0;
+}
+.sheet[data-per-page='4'] .label-qr {
+  width: 50mm;
+  height: 50mm;
+}
+.label-qr svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.label-to {
+  margin-top: 2mm;
+  font-size: 5mm;
+  line-height: 1.15;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sheet[data-per-page='4'] .label-to {
+  font-size: 9mm;
+}
+.label-text {
+  font-size: 3.6mm;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.label-flags {
+  display: flex;
+  gap: 2mm;
+  flex-wrap: wrap;
+  font-size: 3.4mm;
+  font-weight: 800;
+  margin-top: 1.5mm;
+}
+.label-flags span {
+  border: 0.5mm solid #000;
+  border-radius: 1.5mm;
+  padding: 0.4mm 1.5mm;
+}
+.label-move {
+  font-size: 2.8mm;
+  color: #555;
+  margin-top: auto;
+  padding-top: 1mm;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  [data-noprint] {
+    display: none !important;
+  }
+  .sheet-frame {
+    transform: none !important;
+    height: auto !important;
+    width: auto !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+  body:has(.labels-page) #root * {
+    max-width: none !important;
+  }
+  body:has(.labels-page) .labels-page {
+    padding: 0 !important;
+  }
+  body:has(.labels-page) [role='status'] {
+    display: none !important;
+  }
+  body:has(.labels-page) .sheets {
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+  .sheet {
+    transform: none !important; /* the on-screen preview is scaled down; print at real size */
+    height: 296mm; /* a hair under A4 so rounding never spills onto an extra page */
+    overflow: hidden;
+  }
+  .sheet {
+    break-after: page;
+  }
+  .sheet:last-child {
+    break-after: auto;
+  }
+}

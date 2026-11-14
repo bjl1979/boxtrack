@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
-import { createBox, getNextBoxNumber, updateBox, useBox, useSettings, type Move } from '../../db';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
+import { createBox, getNextBoxNumber, isBoxNumberTaken, updateBox, useBox, useSettings, type Move } from '../../db';
 import { PageHeader } from '../../components/AppShell';
 import { EmptyState } from '../../components/ui';
 import { BoxForm, emptyValues, valuesFromBox, type BoxFormValues } from './BoxForm';
@@ -9,10 +9,16 @@ export function NewBoxPage({ move }: { move: Move }) {
   const navigate = useNavigate();
   const settings = useSettings();
   const [initial, setInitial] = useState<BoxFormValues | null>(null);
+  const [params] = useSearchParams();
+  const wanted = Number(params.get('number'));
 
   useEffect(() => {
-    getNextBoxNumber(move.id).then((n) => setInitial(emptyValues(n)));
-  }, [move.id]);
+    (async () => {
+      // A scanned sticker with no box yet pre-fills its number.
+      if (Number.isInteger(wanted) && wanted > 0 && !(await isBoxNumberTaken(move.id, wanted))) setInitial(emptyValues(wanted));
+      else setInitial(emptyValues(await getNextBoxNumber(move.id)));
+    })();
+  }, [move.id, wanted]);
 
   if (!initial || !settings) return <PageHeader title="New box" back />;
   return (
