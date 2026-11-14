@@ -9,6 +9,7 @@ import { IconFilter, IconFlag, IconPrinter, IconQr, IconTag, IconX } from '../..
 import { useSessionState } from '../../lib/usePersistentState';
 import { BoxRow } from './BoxRow';
 import { SearchBar } from '../search/SearchBar';
+import { BackupReminder } from '../export/BackupReminder';
 import { FilterSheet } from './FilterSheet';
 import { EMPTY_FILTERS, activeFilterCount, filterBoxes, sortBoxes, summarise, type BoxFilters, type SortKey } from './filters';
 import { STATUS_META } from './statusMeta';
@@ -80,6 +81,7 @@ export function BoxListPage({ move }: { move: Move }) {
       <main className={cx('px-4', selected && 'pb-40')}>
         <div className="mb-3">
           <SearchBar />
+          <BackupReminder />
         </div>
         <Segmented
           label="Sort boxes"

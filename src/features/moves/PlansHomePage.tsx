@@ -7,6 +7,7 @@ import { Sheet } from '../../components/Sheet';
 import { SectionTitle, cx } from '../../components/ui';
 import { MoveForm } from './MoveForm';
 import { SearchBar } from '../search/SearchBar';
+import { BackupReminder } from '../export/BackupReminder';
 
 const EMPTY: MoveStats = { total: 0, packed: 0, shipped: 0, delivered: 0 };
 
@@ -164,6 +165,7 @@ export function PlansHomePage() {
 
         {live.length > 0 && (
           <>
+            <BackupReminder />
             <div className="mt-5">
               <SearchBar placeholder="Search your boxes…" />
             </div>

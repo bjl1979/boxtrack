@@ -17,7 +17,7 @@ export function Button({
       className={cx(
         'inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-5 text-base font-semibold transition active:scale-[0.97] disabled:opacity-40',
         variant === 'primary' && 'bg-accent text-white shadow-[0_8px_20px_-8px_var(--accent)]',
-        variant === 'secondary' && 'card text-text',
+        variant === 'secondary' && 'bg-surface-2 text-text ring-1 ring-white/5',
         variant === 'ghost' && 'text-muted',
         variant === 'danger' && 'bg-danger/15 text-danger',
         className,

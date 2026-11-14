@@ -4,6 +4,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
+  // OCR tests keep a CPU core busy; with more workers the camera-scan tests can starve and time out.
+  workers: 2,
   retries: 0,
   reporter: 'list',
   use: {

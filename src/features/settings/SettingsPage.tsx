@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   archiveMove,
   createMove,
@@ -15,10 +15,11 @@ import { PageHeader } from '../../components/AppShell';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { Sheet } from '../../components/Sheet';
 import { Button, SectionTitle, Segmented } from '../../components/ui';
-import { formatBytes, getStorageInfo, type StorageInfo } from '../../lib/storage';
 import { MoveForm } from '../moves/MoveForm';
 import { ListEditor } from './ListEditor';
 import { OcrSettings } from './OcrSettings';
+import { BackupSettings } from '../export/BackupSettings';
+import { useSearchParams } from 'react-router';
 
 function MoveCard({ move, onRename, onArchive }: { move: Move; onRename: () => void; onArchive: () => void }) {
   return (
@@ -59,15 +60,13 @@ function MoveCard({ move, onRename, onArchive }: { move: Move; onRename: () => v
 export function SettingsPage() {
   const moves = useMoves();
   const settings = useSettings();
-  const [tab, setTab] = useState<'moves' | 'lists' | 'ocr' | 'storage'>('moves');
+  const [params, setParams] = useSearchParams();
+  type Tab = 'moves' | 'lists' | 'ocr' | 'backup';
+  const tab = (params.get('tab') as Tab | null) ?? 'moves';
+  const setTab = (t: Tab) => setParams({ tab: t }, { replace: true });
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<Move | null>(null);
   const [archiving, setArchiving] = useState<Move | null>(null);
-  const [storage, setStorage] = useState<StorageInfo | null>(null);
-
-  useEffect(() => {
-    if (tab === 'storage') getStorageInfo().then(setStorage);
-  }, [tab]);
 
   return (
     <>
@@ -81,7 +80,7 @@ export function SettingsPage() {
             { value: 'moves', label: 'Plans' },
             { value: 'lists', label: 'Lists' },
             { value: 'ocr', label: 'Photo text' },
-            { value: 'storage', label: 'Storage' },
+            { value: 'backup', label: 'Backup' },
           ]}
         />
 
@@ -120,35 +119,7 @@ export function SettingsPage() {
           </>
         )}
 
-        {tab === 'storage' && (
-          <>
-            <SectionTitle>On this phone</SectionTitle>
-            <div className="card p-4">
-              {storage ? (
-                <>
-                  <p className="text-2xl font-semibold">{formatBytes(storage.usage)}</p>
-                  <p className="text-sm text-muted">used of about {formatBytes(storage.quota)} available</p>
-                  <div className="inset mt-3 h-2 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-accent"
-                      style={{ width: `${Math.min(100, (storage.usage / Math.max(storage.quota, 1)) * 100)}%` }}
-                    />
-                  </div>
-                  <p className="mt-3 text-sm">
-                    {storage.persisted
-                      ? '✓ Storage is protected – the browser will not clear it automatically.'
-                      : '⚠ Storage is not yet protected. Install BoxTrack to the home screen to improve this.'}
-                  </p>
-                </>
-              ) : (
-                <p className="text-muted">Storage information is not available in this browser.</p>
-              )}
-            </div>
-            <p className="mt-4 px-1 text-sm text-muted">
-              All data stays on this phone. Backup and restore arrive in a later update.
-            </p>
-          </>
-        )}
+        {tab === 'backup' && <BackupSettings />}
       </main>
 
       <Sheet open={creating} title="New packing plan" onClose={() => setCreating(false)}>

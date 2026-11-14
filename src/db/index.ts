@@ -7,5 +7,6 @@ export * from './items';
 export * from './photos';
 export * from './search';
 export * from './changes';
+export * from './backup';
 export * from './hooks';
 export { db } from './schema';

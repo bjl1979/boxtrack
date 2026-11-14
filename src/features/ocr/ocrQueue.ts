@@ -1,4 +1,4 @@
-import { getNextPendingOcrPhoto, getSettings, onBoxesChanged, setPhotoOcrText, type Photo } from '../../db';
+import { getNextPendingOcrPhoto, getSettings, onBoxesChanged, onDataReset, setPhotoOcrText, type Photo } from '../../db';
 import { cleanOcrLines, type OcrLine } from './text';
 
 export type Recognize = (image: Blob, lang: string) => Promise<OcrLine[]>;
@@ -78,6 +78,7 @@ export function startOcrQueue(): OcrQueue {
   const q = new OcrQueue(async (blob, lang) => (await import('./engine')).recognizeLines(blob, lang));
   queue = q;
   onBoxesChanged(() => void q.kick());
+  onDataReset(() => void q.kick());
   void q.kick();
   return q;
 }

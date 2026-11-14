@@ -1,5 +1,5 @@
 import MiniSearch, { type SearchResult } from 'minisearch';
-import { getSearchSources, onBoxesChanged, type SearchSources } from '../../db';
+import { getSearchSources, onBoxesChanged, onDataReset, type SearchSources } from '../../db';
 
 /** Where a match was found. */
 export type MatchSource = 'item' | 'itemNote' | 'label' | 'boxNote' | 'room' | 'category' | 'photo';
@@ -215,5 +215,6 @@ export function startSearchIndex(): void {
   if (started) return;
   started = true;
   onBoxesChanged((ids) => void searchIndex.reindexBoxes(ids));
+  onDataReset(() => void searchIndex.rebuild());
   void searchIndex.rebuild();
 }

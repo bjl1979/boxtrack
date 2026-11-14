@@ -17,5 +17,14 @@ export function notifyBoxesChanged(boxIds: Iterable<string>): void {
   for (const l of listeners) l(ids);
 }
 
-/** Notify that every box may have changed (e.g. after a restore or "delete all"). */
-export const ALL_BOXES = '*';
+const resetListeners = new Set<() => void>();
+
+/** Called after the whole database was replaced (restore, "delete all data"). */
+export function onDataReset(listener: () => void): () => void {
+  resetListeners.add(listener);
+  return () => resetListeners.delete(listener);
+}
+
+export function notifyDataReset(): void {
+  for (const l of resetListeners) l();
+}

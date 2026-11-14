@@ -4,7 +4,7 @@ Offline-first moving-box inventory. Number every box, record what is in it, and 
 "passport" or "drill" straight away. Everything is stored on the phone (IndexedDB); there is no
 server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
 
-**Status:** Phase 6 (moving day) done.
+**Status:** Phase 7 (export & backup) done.
 - **Packing plans** (one per move) on the home screen, each with Packed / Shipped / Delivered progress.
 - Boxes: create/edit/delete, "Save & next box", list with summary, filters and sorting.
 - Items: quick add (type `3x plates` for a quantity), quantity stepper, reorder, move to another box.
@@ -43,12 +43,20 @@ on first run, and Settings → Storage shows whether it was granted.
 ## Backing up your data
 
 All boxes live **only on this phone**. If the app is uninstalled, Chrome's site data is cleared, or
-the phone is lost, the data is gone.
+the phone is lost, the data is gone – so keep backups.
 
-- Phase 7 adds **Settings → Backup** to export a full `.zip` (data + photos) and restore it.
-  Until then, do not clear Chrome's site data for the BoxTrack address.
-- Once backup is available: export after each packing session, and copy the `.zip` off the phone
-  (Google Drive, email to yourself, or a PC).
+1. **Settings → Backup → Download backup (.zip)** (or *Share backup* to send it straight to Google
+   Drive, WhatsApp or email). The file contains every plan, box, item and photo.
+2. Copy the `.zip` off the phone (Drive, email to yourself, or a PC). Do this after each packing session.
+3. To restore: **Settings → Backup → Choose backup file**, then
+   - **Merge into my data** – keeps what is on the phone and adds what is missing, or
+   - **Replace all my data** – deletes what is on the phone first.
+
+A reminder appears on the home screen when you have more than 10 boxes and no backup from the last
+7 days. BoxTrack also asks Chrome to keep its storage (Settings → Backup shows whether this was granted).
+
+**Exports** (Settings → Backup, for the active plan): an **Inventory PDF** for the movers or an
+insurance claim, and **Excel / CSV** with one row per item.
 
 ## Development
 
