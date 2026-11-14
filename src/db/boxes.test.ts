@@ -119,3 +119,20 @@ describe('boxes', () => {
     expect(await db.items.count()).toBe(1);
   });
 });
+
+describe('bulk delete', () => {
+  it('deletes several boxes with their items and photos', async () => {
+    const { deleteBoxes } = await import('./boxes');
+    const moveId = (await createMove({ name: 'M' })).id;
+    const a = await createBox(input(moveId, 1));
+    const b = await createBox(input(moveId, 2));
+    const c = await createBox(input(moveId, 3));
+    await db.items.bulkAdd([
+      { id: 'i1', boxId: a.id, name: 'x', quantity: 1, position: 0, createdAt: 0 },
+      { id: 'i2', boxId: c.id, name: 'y', quantity: 1, position: 0, createdAt: 0 },
+    ]);
+    await deleteBoxes([a.id, b.id]);
+    expect((await listBoxes(moveId)).map((x) => x.number)).toEqual([3]);
+    expect((await db.items.toArray()).map((i) => i.id)).toEqual(['i2']);
+  });
+});

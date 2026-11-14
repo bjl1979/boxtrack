@@ -1,7 +1,7 @@
 {
   "name": "boxtrack",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "predev": "node scripts/copy-ocr-assets.mjs",

@@ -2,6 +2,7 @@ import { db } from './schema';
 import { ValidationError } from './errors';
 import type { Move } from './types';
 import { newId } from '../lib/id';
+import { notifyBoxesChanged } from './changes';
 
 export interface MoveInput {
   name: string;
@@ -101,4 +102,28 @@ export async function getMoveStats(): Promise<Record<string, MoveStats>> {
     if (b.status === 'delivered' || b.status === 'unpacked') s.delivered++;
   });
   return out;
+}
+
+/**
+ * Deletes a plan with all its boxes, items and photos (one transaction). If it was the active
+ * plan, the most recent other non-archived plan becomes active.
+ */
+export async function deleteMove(id: string): Promise<void> {
+  const boxIds = await db.transaction('rw', [db.moves, db.boxes, db.items, db.photos], async () => {
+    const move = await db.moves.get(id);
+    if (!move) throw new ValidationError('Plan not found');
+    const boxIds = await db.boxes.where('moveId').equals(id).primaryKeys();
+    if (boxIds.length) {
+      await db.items.where('boxId').anyOf(boxIds).delete();
+      await db.photos.where('boxId').anyOf(boxIds).delete();
+      await db.boxes.bulkDelete(boxIds);
+    }
+    await db.moves.delete(id);
+    if (move.isActive) {
+      const next = (await db.moves.orderBy('createdAt').reverse().filter((m) => !m.archived).first()) ?? (await db.moves.orderBy('createdAt').last());
+      if (next) await db.moves.update(next.id, { isActive: true, archived: false });
+    }
+    return boxIds;
+  });
+  notifyBoxesChanged(boxIds);
 }

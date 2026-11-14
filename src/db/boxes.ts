@@ -98,6 +98,17 @@ export async function setBoxStatus(ids: string[], status: BoxStatus): Promise<vo
   });
 }
 
+/** Deletes several boxes (with their items and photos) in one transaction. */
+export async function deleteBoxes(ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  await db.transaction('rw', db.boxes, db.items, db.photos, async () => {
+    await db.items.where('boxId').anyOf(ids).delete();
+    await db.photos.where('boxId').anyOf(ids).delete();
+    await db.boxes.bulkDelete(ids);
+  });
+  notifyBoxesChanged(ids);
+}
+
 /** Deletes a box together with its items and photos, in one transaction. */
 export async function deleteBox(id: string): Promise<void> {
   await db.transaction('rw', db.boxes, db.items, db.photos, async () => {

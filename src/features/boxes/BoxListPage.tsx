@@ -1,7 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import { BOX_STATUSES, setBoxStatus, useBoxes, useItemCounts, useSettings, type BoxStatus, type Move } from '../../db';
+import { BOX_STATUSES, deleteBoxes, setBoxStatus, useBoxes, useItemCounts, useSettings, type BoxStatus, type Move } from '../../db';
 import { useToast } from '../../components/Toast';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { PageHeader } from '../../components/AppShell';
 import { StatusRing } from '../../components/StatusRing';
 import { Chip, EmptyState, Segmented, SectionTitle, cx } from '../../components/ui';
@@ -82,6 +83,7 @@ export function BoxListPage({ move }: { move: Move }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string> | null>(null); // null = not selecting
   const toast = useToast(2500);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const summary = useMemo(() => summarise(boxes ?? []), [boxes]);
   const visible = useMemo(() => sortBoxes(filterBoxes(boxes ?? [], filters), sort), [boxes, filters, sort]);
@@ -105,7 +107,7 @@ export function BoxListPage({ move }: { move: Move }) {
           </Link>
         }
       />
-      <main className={cx('px-4', selected && 'pb-40')}>
+      <main className={cx('px-4', selected && 'pb-56')}>
         <div className="mb-3">
           <SearchBar />
           <BackupReminder />
@@ -293,8 +295,31 @@ export function BoxListPage({ move }: { move: Move }) {
               </Chip>
             ))}
           </div>
+          <button
+            type="button"
+            disabled={!selected.size}
+            onClick={() => setConfirmDelete(true)}
+            className="mt-2 min-h-11 w-full rounded-2xl text-sm font-semibold text-danger disabled:opacity-40"
+          >
+            Delete {selected.size} {selected.size === 1 ? 'box' : 'boxes'}…
+          </button>
         </div>
       )}
+      <ConfirmDialog
+        open={confirmDelete}
+        danger
+        title={`Delete ${selected?.size ?? 0} ${selected?.size === 1 ? 'box' : 'boxes'}?`}
+        body="Their items and photos will be deleted too. This cannot be undone."
+        confirmLabel="Delete"
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={async () => {
+          const ids = [...(selected ?? [])];
+          setConfirmDelete(false);
+          await deleteBoxes(ids);
+          setSelected(null);
+          toast.show(`${ids.length} ${ids.length === 1 ? 'box' : 'boxes'} deleted`);
+        }}
+      />
       {toast.node}
 
       <FilterSheet
