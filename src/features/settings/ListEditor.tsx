@@ -4,7 +4,18 @@ import { Button } from '../../components/ui';
 import { inputClass } from '../moves/MoveForm';
 
 /** Editable list of chips (rooms, categories). */
-export function ListEditor({ label, values, onChange }: { label: string; values: string[]; onChange: (v: string[]) => void }) {
+export function ListEditor({
+  label,
+  singular,
+  values,
+  onChange,
+}: {
+  label: string;
+  /** e.g. "room", "category" – used in "Add room". */
+  singular: string;
+  values: string[];
+  onChange: (v: string[]) => void;
+}) {
   const [draft, setDraft] = useState('');
   function add(e: FormEvent) {
     e.preventDefault();
@@ -35,8 +46,8 @@ export function ListEditor({ label, values, onChange }: { label: string; values:
           className={inputClass}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder={`Add ${label.toLowerCase().replace(/s$/, '')}`}
-          aria-label={`New ${label.toLowerCase().replace(/s$/, '')}`}
+          placeholder={`Add ${singular}`}
+          aria-label={`New ${singular}`}
         />
         <Button type="submit" variant="primary" disabled={!draft.trim()}>
           Add

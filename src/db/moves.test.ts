@@ -67,3 +67,30 @@ describe('move stats', () => {
     });
   });
 });
+
+describe('delete plan', () => {
+  it('removes the plan with its boxes, items and photos, and activates another plan', async () => {
+    const { createBox } = await import('./boxes');
+    const { addItem } = await import('./items');
+    const { db } = await import('./schema');
+    const { NO_FLAGS } = await import('./types');
+    const { deleteMove } = await import('./moves');
+    const keep = await createMove({ name: 'Keep' });
+    const gone = await createMove({ name: 'Gone' }); // active
+    const kb = await createBox({ moveId: keep.id, number: 1, flags: { ...NO_FLAGS }, status: 'packing' });
+    const gb = await createBox({ moveId: gone.id, number: 1, flags: { ...NO_FLAGS }, status: 'packing' });
+    await addItem(kb.id, { name: 'Stays' });
+    await addItem(gb.id, { name: 'Goes' });
+    await db.photos.add({ id: 'p', boxId: gb.id, kind: 'outside', blob: new Blob(['x']), thumbBlob: new Blob(['x']), createdAt: 0, ocrStatus: 'skipped' });
+
+    await deleteMove(gone.id);
+    expect(await db.moves.get(gone.id)).toBeUndefined();
+    expect(await db.boxes.toArray()).toHaveLength(1);
+    expect((await db.items.toArray()).map((i) => i.name)).toEqual(['Stays']);
+    expect(await db.photos.count()).toBe(0);
+    expect((await getActiveMove())?.id).toBe(keep.id);
+
+    await deleteMove(keep.id);
+    expect(await getActiveMove()).toBeUndefined();
+  });
+});

@@ -6,7 +6,9 @@ server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
 
 **Status:** all 8 phases of SPEC.md are done.
 - **Packing plans** (one per move) on the home screen, each with Packed / Shipped / Delivered progress.
-- Boxes: create/edit/delete, "Save & next box", list with summary, filters and sorting.
+- Boxes: create/edit/delete, "Save & next box", list with summary, filters and sorting. *Select*
+  on the box list changes the status of, or deletes, several boxes at once.
+- Plans: Settings → Plans to rename, switch, archive, or delete a plan with all its boxes.
 - Items: quick add (type `3x plates` for a quantity), quantity stepper, reorder, move to another box.
 - Photos: camera or gallery, compressed on the phone (1600 px JPEG + 300 px thumbnail), tagged
   *contents* or *outside*, full-screen viewer with swipe and pinch-zoom.
@@ -71,8 +73,16 @@ is free for public repositories and the workflow is already in `.github/workflow
 3. On the phone, open `https://<your-user>.github.io/boxtrack/` in Chrome, wait for
    "ready to work offline", then **⋮ → Add to Home screen**.
 
-Each later push to `main` publishes a new version; the app shows "A new version of BoxTrack is
-ready – Update". Your data is not affected by updates.
+## Updates (no reinstalling)
+
+Each push to `main` publishes a new version. The installed app picks it up by itself:
+
+- It checks when you open it, whenever you switch back to it, and every hour while it is open.
+- The new version downloads in the background; then a message appears: *"A new version of
+  BoxTrack is ready – Update"*. Tap **Update** and the app reloads into the new version.
+- **Settings → General → About & updates** shows the version and build, and has a
+  **Check for updates** button.
+- Updates only replace the app itself – your plans, boxes, items and photos stay on the phone.
 
 Other static hosts work too: run `npm run build` and upload the `dist` folder (e.g. drag it onto
 Netlify Drop). For a sub-path build use `BASE_PATH=/sub/path/ npm run build`.
