@@ -32,10 +32,10 @@ async function setupBoxes(page: Page) {
   await page.getByLabel('Plan name').fill('Move');
   await page.getByRole('button', { name: 'Create plan' }).click();
   await page.getByRole('button', { name: 'New box' }).click();
-  await page.getByLabel('Label').fill('Kitchen');
+  await page.getByLabel('Label', { exact: true }).fill('Kitchen');
   await page.getByRole('button', { name: 'Save & next box' }).click();
   await expect(page.getByLabel('Box number')).toHaveValue('2');
-  await page.getByLabel('Label').fill('Study');
+  await page.getByLabel('Label', { exact: true }).fill('Study');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByTestId('box-number')).toHaveText('2');
 }

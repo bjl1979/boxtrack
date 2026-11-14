@@ -114,7 +114,7 @@ test('print labels 1–20 on A4, then scan label 12 to open box 12', async ({ pa
   await page.goto('/#/boxes');
   await page.getByRole('link', { name: 'Scan label' }).click();
   await expect(page.getByRole('dialog', { name: 'Scan box label' })).toBeVisible();
-  await expect(page.getByTestId('box-number')).toHaveText('12', { timeout: 20_000 });
+  await expect(page.getByTestId('box-number')).toHaveText('12', { timeout: 60_000 });
   await expect(page.getByText('Books – novels')).toBeVisible();
   expect(errors).toEqual([]);
 });

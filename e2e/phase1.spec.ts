@@ -23,7 +23,7 @@ test('create a move, add boxes with "Save & next", edit, filter and delete', asy
   // New box: number pre-filled with 1.
   await page.getByRole('button', { name: 'New box' }).click();
   await expect(page.getByLabel('Box number')).toHaveValue('1');
-  await page.getByLabel('Label').fill('Kitchen – plates');
+  await page.getByLabel('Label', { exact: true }).fill('Kitchen – plates');
   await page.getByRole('group', { name: 'To room' }).getByRole('button', { name: 'Kitchen' }).click();
   await page.getByRole('button', { name: /Fragile/ }).click();
   await page.getByRole('button', { name: 'Save & next box' }).click();
@@ -31,7 +31,7 @@ test('create a move, add boxes with "Save & next", edit, filter and delete', asy
   // Ready for the next box, rooms kept.
   await expect(page.getByText('Box 1 saved')).toBeVisible();
   await expect(page.getByLabel('Box number')).toHaveValue('2');
-  await expect(page.getByLabel('Label')).toHaveValue('');
+  await expect(page.getByLabel('Label', { exact: true })).toHaveValue('');
   await expect(page.getByRole('group', { name: 'To room' }).getByRole('button', { name: 'Kitchen' })).toHaveAttribute('aria-pressed', 'true');
 
   // Duplicate numbers are blocked.
@@ -40,7 +40,7 @@ test('create a move, add boxes with "Save & next", edit, filter and delete', asy
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled();
 
   await page.getByLabel('Box number').fill('17');
-  await page.getByLabel('Label').fill('Study – books');
+  await page.getByLabel('Label', { exact: true }).fill('Study – books');
   await page.getByRole('group', { name: 'Category' }).getByRole('button', { name: 'Books' }).click();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
 
@@ -52,7 +52,7 @@ test('create a move, add boxes with "Save & next", edit, filter and delete', asy
 
   // Edit.
   await page.getByRole('link', { name: 'Edit box' }).click();
-  await page.getByLabel('Label').fill('Study – novels');
+  await page.getByLabel('Label', { exact: true }).fill('Study – novels');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByText('Study – novels')).toBeVisible();
 
@@ -121,7 +121,7 @@ test('works offline once the service worker is installed', async ({ page, contex
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Offline move' })).toBeVisible();
   await page.getByRole('button', { name: 'New box' }).click();
-  await page.getByLabel('Label').fill('Packed offline');
+  await page.getByLabel('Label', { exact: true }).fill('Packed offline');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByTestId('box-number')).toHaveText('1');
   await page.reload();

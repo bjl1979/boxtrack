@@ -33,7 +33,7 @@ async function startWithBox(page: Page) {
   await page.getByRole('button', { name: 'Create plan' }).click();
   await page.getByRole('button', { name: 'New box' }).click();
   await page.getByLabel('Box number').fill('9');
-  await page.getByLabel('Label').fill('Pantry');
+  await page.getByLabel('Label', { exact: true }).fill('Pantry');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByTestId('box-number')).toHaveText('9');
 }

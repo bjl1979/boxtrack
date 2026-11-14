@@ -11,7 +11,7 @@ async function addBox(page: Page, number: number, label: string, items: string[]
   await page.goto('/#/boxes');
   await page.getByRole('button', { name: 'New box' }).click();
   await page.getByLabel('Box number').fill(String(number));
-  await page.getByLabel('Label').fill(label);
+  await page.getByLabel('Label', { exact: true }).fill(label);
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByTestId('box-number')).toHaveText(String(number));
   for (const it of items) {
