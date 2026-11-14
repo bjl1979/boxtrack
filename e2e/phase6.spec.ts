@@ -1,8 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
-import { fakeCameraFile, fakeCameraOptions, labelAsCameraFrame, writeCameraFile } from './camera';
+import { describeCamera, installFakeCamera, pointCameraAtLabel } from './camera';
 
-const CAMERA_FILE = fakeCameraFile('phase6');
-test.use(fakeCameraOptions(CAMERA_FILE));
+test.beforeEach(async ({ page }) => installFakeCamera(page));
 
 function trackConsoleErrors(page: Page): string[] {
   const errors: string[] = [];
@@ -48,7 +47,7 @@ test('moving day: bulk ship, delivery check by tap and by scan, missing list, un
   // Get label 3's QR (as printed) for the camera.
   await page.goto('/#/labels');
   await expect(page.locator('[data-number="3"] .label-qr svg')).toBeVisible();
-  writeCameraFile(CAMERA_FILE, await labelAsCameraFrame(page, 3));
+  await pointCameraAtLabel(page, 3);
 
   // Delivery check.
   await page.goto('/#/boxes');
@@ -68,7 +67,12 @@ test('moving day: bulk ship, delivery check by tap and by scan, missing list, un
 
   // Scan: box 3 comes off the truck.
   await page.getByRole('button', { name: 'Scan boxes as they arrive' }).click();
-  await expect(page.getByText('Box 3 arrived ✓')).toBeVisible({ timeout: 60_000 });
+  try {
+    await expect(page.getByText('Box 3 arrived ✓')).toBeVisible({ timeout: 30_000 });
+  } catch (e) {
+    console.log('CAMDEBUG', await describeCamera(page, test.info().outputPath('frame.png')));
+    throw e;
+  }
   await expect(page.getByTestId('missing-box')).toHaveCount(3);
   await expect(page.getByTestId('missing-box')).toHaveText([/Box 2 stuff/, /Box 4 stuff/, /Box 5 stuff/]);
   // Seeing the same label again does not change anything.

@@ -1,8 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
-import { fakeCameraFile, fakeCameraOptions, labelAsCameraFrame, writeCameraFile } from './camera';
+import { describeCamera, installFakeCamera, pointCameraAtLabel } from './camera';
 
-const CAMERA_FILE = fakeCameraFile('phase5');
-test.use(fakeCameraOptions(CAMERA_FILE));
+test.beforeEach(async ({ page }) => installFakeCamera(page));
 
 function trackConsoleErrors(page: Page): string[] {
   const errors: string[] = [];
@@ -49,7 +48,7 @@ test('print labels 1–20 on A4, then scan label 12 to open box 12', async ({ pa
   await expect(label12).toContainText('To: Study');
   await expect(label12).toContainText('FRAGILE');
   await expect(label12.locator('.label-qr svg')).toBeVisible();
-  await expect(label12.locator('[data-qr]')).toHaveAttribute('data-qr', /^boxtrack:\/\/move\/[0-9a-f-]+\/box\/12$/);
+  await expect(label12.locator('[data-qr]')).toHaveAttribute('data-qr', /^BOXTRACK:\/\/MOVE\/[0-9A-F-]+\/BOX\/12$/);
 
   // Large labels and a smaller range.
   await page.getByRole('radio', { name: '4 per page (large)' }).click();
@@ -64,11 +63,16 @@ test('print labels 1–20 on A4, then scan label 12 to open box 12', async ({ pa
   await page.emulateMedia({ media: 'screen' });
 
   // Scan label 12 with the (fake) camera.
-  writeCameraFile(CAMERA_FILE, await labelAsCameraFrame(page, 12));
+  await pointCameraAtLabel(page, 12);
   await page.goto('/#/boxes');
   await page.getByRole('link', { name: 'Scan label' }).click();
   await expect(page.getByRole('dialog', { name: 'Scan box label' })).toBeVisible();
-  await expect(page.getByTestId('box-number')).toHaveText('12', { timeout: 60_000 });
+  try {
+    await expect(page.getByTestId('box-number')).toHaveText('12', { timeout: 30_000 });
+  } catch (e) {
+    console.log('CAMDEBUG', await describeCamera(page, test.info().outputPath('frame.png')));
+    throw e;
+  }
   await expect(page.getByText('Books – novels')).toBeVisible();
   expect(errors).toEqual([]);
 });

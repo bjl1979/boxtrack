@@ -3,9 +3,17 @@ import { labelCode, parseLabel, parseRange } from './labelCode';
 describe('label codes', () => {
   const moveId = '3f2c1a9e-1111-4222-8333-444455556666';
 
-  it('round-trips the boxtrack:// format', () => {
-    expect(labelCode(moveId, 12)).toBe(`boxtrack://move/${moveId}/box/12`);
+  it('round-trips the boxtrack:// format (written in capitals for a compact QR code)', () => {
+    expect(labelCode(moveId, 12)).toBe(`BOXTRACK://MOVE/${moveId.toUpperCase()}/BOX/12`);
     expect(parseLabel(labelCode(moveId, 12))).toEqual({ moveId, number: 12 });
+    // Lower-case labels (printed before this change) still scan.
+    expect(parseLabel(`boxtrack://move/${moveId}/box/12`)).toEqual({ moveId, number: 12 });
+  });
+
+  it('labels use the compact QR alphanumeric mode', async () => {
+    const QRCode = (await import('qrcode')).default;
+    const size = (t: string) => QRCode.create(t, { errorCorrectionLevel: 'M' }).modules.size;
+    expect(size(labelCode(moveId, 999))).toBeLessThan(size(`boxtrack://move/${moveId}/box/999`));
   });
 
   it('understands plain text labels', () => {

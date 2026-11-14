@@ -6,8 +6,13 @@ export interface LabelRef {
   number: number;
 }
 
+/**
+ * Written in capitals so the QR code can use its compact alphanumeric mode: 29×29 instead of
+ * 33×33 squares at the same printed size, which scans noticeably more reliably. (The scanner
+ * reads both upper- and lower-case labels.)
+ */
 export function labelCode(moveId: string, number: number): string {
-  return `boxtrack://move/${moveId}/box/${number}`;
+  return `BOXTRACK://MOVE/${moveId.toUpperCase()}/BOX/${number}`;
 }
 
 const validNumber = (n: number) => Number.isInteger(n) && n >= 1 && n <= 99999;
@@ -21,7 +26,7 @@ export function parseLabel(text: string): LabelRef | null {
   const full = /^boxtrack:\/\/move\/([A-Za-z0-9-]{1,64})\/box\/(\d{1,5})\/?$/i.exec(t);
   if (full) {
     const number = Number(full[2]);
-    return validNumber(number) ? { moveId: full[1], number } : null;
+    return validNumber(number) ? { moveId: full[1].toLowerCase(), number } : null;
   }
   const plain = /^(?:box\s*#?\s*)?(\d{1,5})$/i.exec(t);
   if (plain) {

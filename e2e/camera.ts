@@ -1,58 +1,90 @@
 import type { Page } from '@playwright/test';
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
 
 /**
- * Chromium's fake camera plays a .y4m file that is opened when the app asks for the camera, so a
- * test can write the file (made from a printed label's QR code) before opening the scanner.
+ * A fake rear camera for tests: getUserMedia returns a canvas stream that shows whatever image the
+ * test "points the camera at". The app's real scanner code (camera stream → <video> → QR decoder)
+ * runs unchanged; only the physical camera is simulated. Survives same-tab reloads.
  */
-export function fakeCameraFile(name: string): string {
-  return join(process.cwd(), 'test-results', 'fake-camera', `${name}.y4m`);
-}
-
-export function fakeCameraOptions(file: string) {
-  return {
-    permissions: ['camera'],
-    launchOptions: {
-      args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--use-file-for-fake-video-capture=${file}`],
-    },
-  };
-}
-
-const W = 640;
-const H = 480;
-
-/** Renders the QR code of printed label `number` (on the Print labels screen) as a camera frame. */
-export async function labelAsCameraFrame(page: Page, number: number): Promise<Buffer> {
-  const b64 = await page.evaluate(
-    async ({ number, W, H }) => {
-      const svg = document.querySelector(`[data-number="${number}"] .label-qr svg`)!;
-      const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' }));
-      const img = new Image();
-      img.src = url;
-      await img.decode();
-      const c = document.createElement('canvas');
-      c.width = W;
-      c.height = H;
-      const g = c.getContext('2d')!;
+export async function installFakeCamera(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const W = 640;
+    const H = 480;
+    let canvas: HTMLCanvasElement | null = null;
+    let img: HTMLImageElement | null = null;
+    const load = (src: string) => {
+      const i = new Image();
+      i.onload = () => (img = i);
+      i.src = src;
+    };
+    const saved = sessionStorage.getItem('fakeCamera');
+    if (saved) load(saved);
+    (window as unknown as { __pointCamera: (src: string) => void }).__pointCamera = (src: string) => {
+      sessionStorage.setItem('fakeCamera', src);
+      load(src);
+    };
+    let frame = 0;
+    const draw = () => {
+      const g = canvas?.getContext('2d');
+      if (!g) return;
       g.fillStyle = '#fff';
       g.fillRect(0, 0, W, H);
-      g.drawImage(img, (W - 340) / 2, (H - 340) / 2, 340, 340);
-      const px = g.getImageData(0, 0, W, H).data;
-      const y = new Uint8Array(W * H);
-      for (let i = 0; i < W * H; i++) y[i] = Math.round(0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]);
-      let s = '';
-      for (let i = 0; i < y.length; i += 0x8000) s += String.fromCharCode(...y.subarray(i, i + 0x8000));
-      return btoa(s);
-    },
-    { number, W, H },
-  );
-  return Buffer.from(b64, 'base64');
+      // A hand-held phone never holds perfectly still: the label size wobbles slightly.
+      const size = 340 + 30 * Math.sin(frame++ / 3);
+      if (img) g.drawImage(img, (W - size) / 2, (H - size) / 2, size, size);
+    };
+    if (navigator.mediaDevices) {
+      navigator.mediaDevices.getUserMedia = async () => {
+        canvas = document.createElement('canvas');
+        canvas.width = W;
+        canvas.height = H;
+        draw();
+        setInterval(draw, 100);
+        return canvas.captureStream(10);
+      };
+    }
+  });
 }
 
-export function writeCameraFile(file: string, luma: Buffer) {
-  const chroma = Buffer.alloc((W / 2) * (H / 2), 128);
-  const frame = Buffer.concat([Buffer.from('FRAME\n'), luma, chroma, chroma]);
-  mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, Buffer.concat([Buffer.from(`YUV4MPEG2 W${W} H${H} F10:1 Ip A1:1 C420jpeg\n`), frame, frame]));
+/** Points the fake camera at the QR code of printed label `number` (on the Print labels screen). */
+export async function pointCameraAtLabel(page: Page, number: number): Promise<void> {
+  await page.evaluate((n) => {
+    const svg = document.querySelector(`[data-number="${n}"] .label-qr svg`);
+    if (!svg) throw new Error(`label ${n} not found`);
+    const src = 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg));
+    (window as unknown as { __pointCamera: (src: string) => void }).__pointCamera(src);
+  }, number);
+}
+
+/** Debug aid: describes the scanner's video and saves the current camera frame next to the test results. */
+export async function describeCamera(page: Page, path: string): Promise<string> {
+  const info = await page.evaluate(() => {
+    const v = document.querySelector('video') as HTMLVideoElement | null;
+    let frame = '';
+    if (v && v.videoWidth) {
+      const c = document.createElement('canvas');
+      c.width = v.videoWidth;
+      c.height = v.videoHeight;
+      c.getContext('2d')!.drawImage(v, 0, 0);
+      frame = c.toDataURL('image/png');
+    }
+    return {
+      saved: (sessionStorage.getItem('fakeCamera') ?? '').length,
+      readyState: v?.readyState,
+      size: `${v?.videoWidth}x${v?.videoHeight}`,
+      paused: v?.paused,
+      decodeAttempts: v?.dataset.decodeAttempts,
+      videos: document.querySelectorAll('video').length,
+      tracks: (v?.srcObject as MediaStream | null)?.getTracks().map((t) => t.readyState),
+      chunks: performance
+        .getEntriesByType('resource')
+        .filter((e) => /assets\/.*\.js/.test(e.name))
+        .map((e) => `${e.name.split('/').pop()}:${Math.round((e as PerformanceResourceTiming).responseEnd)}`),
+      now: Math.round(performance.now()),
+      controlled: !!navigator.serviceWorker?.controller,
+      frame,
+    };
+  });
+  const { writeFileSync } = await import('node:fs');
+  if (info.frame) writeFileSync(path, Buffer.from(info.frame.split(',')[1], 'base64'));
+  return JSON.stringify({ ...info, frame: info.frame.length });
 }

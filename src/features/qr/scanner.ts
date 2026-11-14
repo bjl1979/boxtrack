@@ -41,6 +41,35 @@ async function nativeDetector(): Promise<BarcodeDetectorLike | null> {
   }
 }
 
+const MAX_SIDE = 960; // decoding a smaller frame is much faster and still reads labels fine
+
+/** Returns a function that reads a QR code from the current video frame (or null). */
+async function createFrameDecoder(video: HTMLVideoElement): Promise<() => Promise<string | null>> {
+  const native = await nativeDetector();
+  if (native) {
+    return async () => (await native.detect(video))[0]?.rawValue ?? null;
+  }
+  const { BrowserQRCodeReader } = await import('@zxing/browser');
+  const reader = new BrowserQRCodeReader();
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  // Frames are decoded at changing sizes: a code that fails at one size usually reads at another.
+  const SCALES = [1, 0.5, 0.75];
+  let n = 0;
+  return async () => {
+    if (!ctx) return null;
+    const scale = Math.min(1, MAX_SIDE / Math.max(video.videoWidth, video.videoHeight)) * SCALES[n++ % SCALES.length];
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    try {
+      return reader.decodeFromCanvas(canvas).getText();
+    } catch {
+      return null; // no QR code in this frame
+    }
+  };
+}
+
 /** Starts the rear camera in `video` and calls `onText` for every QR code seen. Returns a stop function. */
 export async function startQrScanner(video: HTMLVideoElement, onText: (text: string) => void): Promise<() => void> {
   if (!navigator.mediaDevices?.getUserMedia) {
@@ -58,35 +87,29 @@ export async function startQrScanner(video: HTMLVideoElement, onText: (text: str
   video.srcObject = stream;
   video.setAttribute('playsinline', 'true');
   video.muted = true;
-  await video.play().catch(() => {});
+  // Don't wait for play(): its promise can stay pending (e.g. while the page is busy) and the scanner
+  // would never start. The frame loop below simply waits until frames arrive.
+  void video.play().catch(() => {});
 
+  // One frame loop for both decoders. (ZXing's own video helper waits for a "playing" event that may
+  // already have fired, and then never decodes – so frames are fed to it from here instead.)
   let stopped = false;
-  let stopDecoder = () => {};
-  const detector = await nativeDetector();
-  if (detector) {
-    let timer: ReturnType<typeof setTimeout>;
-    const tick = async () => {
-      if (stopped) return;
-      if (video.readyState >= 2) {
-        try {
-          const codes = await detector.detect(video);
-          if (codes[0]?.rawValue) onText(codes[0].rawValue);
-        } catch {
-          /* frame not ready – try again */
-        }
-      }
-      timer = setTimeout(tick, 150);
-    };
-    void tick();
-    stopDecoder = () => clearTimeout(timer);
-  } else {
-    const { BrowserQRCodeReader } = await import('@zxing/browser');
-    const reader = new BrowserQRCodeReader(undefined, { delayBetweenScanAttempts: 150 });
-    const controls = await reader.decodeFromVideoElement(video, (result) => {
-      if (result && !stopped) onText(result.getText());
-    });
-    stopDecoder = () => controls.stop();
-  }
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const detect = await createFrameDecoder(video);
+  let attempts = 0;
+  const tick = async () => {
+    if (stopped) return;
+    video.dataset.decodeAttempts = String(attempts); // diagnostic: shows the decoder is running
+    if (video.paused) void video.play().catch(() => {});
+    if (video.readyState >= 2 && video.videoWidth > 0) {
+      attempts++;
+      const text = await detect().catch(() => null);
+      if (text && !stopped) onText(text);
+    }
+    timer = setTimeout(tick, 150);
+  };
+  void tick();
+  const stopDecoder = () => clearTimeout(timer);
 
   return () => {
     stopped = true;
