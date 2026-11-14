@@ -1,0 +1,149 @@
+@import 'tailwindcss';
+
+/* Design tokens (dark "wallet" template). A light theme can redefine these in phase 8. */
+:root {
+  --bg: #161618;
+  --bg-deep: #0e0e0f;
+  --surface: #252527;
+  --surface-2: #313134;
+  --line: #3b3b3f;
+  --text: #f5f5f5;
+  --muted: #9b9ba1;
+  --accent: #ea7a2f;
+  --accent-2: #f39a55;
+  --danger: #fb7185;
+  /* Text/icons on orange: dark, because white on this orange is only 2.9:1 (hard to read outdoors). */
+  --on-accent: #161618;
+
+  --c-packing: #d6d6d6;
+  --c-packed: #f0a35e;
+  --c-shipped: #ea7a2f;
+  --c-delivered: #7dd3a8;
+  --c-unpacked: #8b8b92;
+  --c-missing: #fb7185;
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #f4f2ef;
+  --bg-deep: #e7e3dd;
+  --surface: #ffffff;
+  --surface-2: #efece7;
+  --line: #d3cec6;
+  --text: #1c1b1a;
+  --muted: #5f5b56;
+  --accent: #c2410c;
+  --accent-2: #dd5a1b;
+  --on-accent: #ffffff;
+  --danger: #be123c;
+  --c-packing: #8b8b92;
+  --c-packed: #d97706;
+  --c-shipped: #c2410c;
+  --c-delivered: #15803d;
+  --c-unpacked: #57534e;
+  --c-missing: #be123c;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --bg: #f4f2ef;
+    --bg-deep: #e7e3dd;
+    --surface: #ffffff;
+    --surface-2: #efece7;
+    --line: #d3cec6;
+    --text: #1c1b1a;
+    --muted: #5f5b56;
+    --accent: #c2410c;
+    --accent-2: #dd5a1b;
+    --on-accent: #ffffff;
+    --danger: #be123c;
+    --c-packing: #8b8b92;
+    --c-packed: #d97706;
+    --c-shipped: #c2410c;
+    --c-delivered: #15803d;
+    --c-unpacked: #57534e;
+    --c-missing: #be123c;
+    color-scheme: light;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* Card surface. */
+/* In the components layer so utility classes (e.g. bg-*, rounded-*) can override them. */
+@layer components {
+  .card {
+    background: var(--surface);
+    border-radius: 1.25rem;
+  }
+
+  .inset {
+    background: var(--bg-deep);
+    border-radius: 1rem;
+  }
+}
+
+/* Round orange "+" button in the bottom bar. */
+.fab {
+  border-radius: 9999px;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  box-shadow: 0 8px 24px -6px color-mix(in oklab, var(--accent) 70%, transparent);
+}
+
+/* Big box "card" on the box screen and form. */
+.hero-card {
+  background: var(--accent);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+input,
+textarea,
+select {
+  font-size: 16px; /* prevent zoom on focus in mobile browsers */
+}
+
+/* In the base layer so utilities such as outline-none can override it. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
