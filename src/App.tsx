@@ -12,6 +12,7 @@ import { SettingsPage } from './features/settings/SettingsPage';
 import { SearchPage } from './features/search/SearchPage';
 import { LabelsPage } from './features/qr/LabelsPage';
 import { ScanPage } from './features/qr/ScanPage';
+import { MovingDayPage } from './features/movingday/MovingDayPage';
 
 /** Renders the page for the active packing plan; without one, goes back to the plans home screen. */
 function WithMove({ render }: { render: (move: Move) => ReactElement }) {
@@ -50,6 +51,7 @@ const router = createHashRouter([
           { path: 'boxes/new', element: <WithMove render={(m) => <NewBoxPage key={m.id} move={m} />} /> },
           { path: 'boxes/:id', element: <BoxDetailPage /> },
           { path: 'labels', element: <WithMove render={(m) => <LabelsPage key={m.id} move={m} />} /> },
+          { path: 'moving-day', element: <WithMove render={(m) => <MovingDayPage key={m.id} move={m} />} /> },
           { path: 'scan', element: <WithMove render={(m) => <ScanPage key={m.id} move={m} />} /> },
           { path: 'boxes/:id/edit', element: <EditBoxPage /> },
         ],

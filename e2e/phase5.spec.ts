@@ -1,60 +1,14 @@
 import { expect, test, type Page } from '@playwright/test';
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { fakeCameraFile, fakeCameraOptions, labelAsCameraFrame, writeCameraFile } from './camera';
 
-// Chromium's fake camera plays this file; it is opened when the scanner asks for the camera,
-// so the test writes it (from the printed label) before opening the scanner.
-const CAMERA_FILE = join(process.cwd(), 'test-results', 'fake-camera', 'label.y4m');
-test.use({
-  permissions: ['camera'],
-  launchOptions: {
-    args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--use-file-for-fake-video-capture=${CAMERA_FILE}`],
-  },
-});
+const CAMERA_FILE = fakeCameraFile('phase5');
+test.use(fakeCameraOptions(CAMERA_FILE));
 
 function trackConsoleErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   page.on('pageerror', (e) => errors.push(e.message));
   return errors;
-}
-
-const W = 640;
-const H = 480;
-
-/** Renders the QR code shown on a printed label into a grey camera frame (luma bytes). */
-async function labelAsCameraFrame(page: Page, number: number): Promise<Buffer> {
-  const b64 = await page.evaluate(
-    async ({ number, W, H }) => {
-      const svg = document.querySelector(`[data-number="${number}"] .label-qr svg`)!;
-      const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' }));
-      const img = new Image();
-      img.src = url;
-      await img.decode();
-      const c = document.createElement('canvas');
-      c.width = W;
-      c.height = H;
-      const g = c.getContext('2d')!;
-      g.fillStyle = '#fff';
-      g.fillRect(0, 0, W, H);
-      g.drawImage(img, (W - 340) / 2, (H - 340) / 2, 340, 340);
-      const px = g.getImageData(0, 0, W, H).data;
-      const y = new Uint8Array(W * H);
-      for (let i = 0; i < W * H; i++) y[i] = Math.round(0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]);
-      let s = '';
-      for (let i = 0; i < y.length; i += 0x8000) s += String.fromCharCode(...y.subarray(i, i + 0x8000));
-      return btoa(s);
-    },
-    { number, W, H },
-  );
-  return Buffer.from(b64, 'base64');
-}
-
-function writeY4m(luma: Buffer) {
-  const chroma = Buffer.alloc((W / 2) * (H / 2), 128);
-  const frame = Buffer.concat([Buffer.from('FRAME\n'), luma, chroma, chroma]);
-  mkdirSync(dirname(CAMERA_FILE), { recursive: true });
-  writeFileSync(CAMERA_FILE, Buffer.concat([Buffer.from(`YUV4MPEG2 W${W} H${H} F10:1 Ip A1:1 C420jpeg\n`), frame, frame]));
 }
 
 async function startPlan(page: Page) {
@@ -110,7 +64,7 @@ test('print labels 1–20 on A4, then scan label 12 to open box 12', async ({ pa
   await page.emulateMedia({ media: 'screen' });
 
   // Scan label 12 with the (fake) camera.
-  writeY4m(await labelAsCameraFrame(page, 12));
+  writeCameraFile(CAMERA_FILE, await labelAsCameraFrame(page, 12));
   await page.goto('/#/boxes');
   await page.getByRole('link', { name: 'Scan label' }).click();
   await expect(page.getByRole('dialog', { name: 'Scan box label' })).toBeVisible();

@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import { BOX_STATUSES, useBoxes, useItemCounts, useSettings, type BoxStatus, type Move } from '../../db';
+import { BOX_STATUSES, setBoxStatus, useBoxes, useItemCounts, useSettings, type BoxStatus, type Move } from '../../db';
+import { useToast } from '../../components/Toast';
 import { PageHeader } from '../../components/AppShell';
 import { StatusRing } from '../../components/StatusRing';
 import { Chip, EmptyState, Segmented, SectionTitle, cx } from '../../components/ui';
@@ -26,14 +27,21 @@ function ActionTile({ label, icon, badge, onClick }: { label: string; icon: Reac
   );
 }
 
-function Stat({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div className="flex flex-col items-center">
+function Stat({ label, value, color, onClick }: { label: string; value: number; color: string; onClick?: () => void }) {
+  const inner = (
+    <>
       <span className="text-xl font-semibold tabular-nums" style={{ color }}>
         {value}
       </span>
       <span className="text-[11px] text-muted">{label}</span>
-    </div>
+    </>
+  );
+  return onClick ? (
+    <button type="button" onClick={onClick} className="flex min-h-11 flex-col items-center" aria-label={`${value} ${label}, show them`}>
+      {inner}
+    </button>
+  ) : (
+    <div className="flex flex-col items-center">{inner}</div>
   );
 }
 
@@ -44,6 +52,8 @@ export function BoxListPage({ move }: { move: Move }) {
   const [sort, setSort] = useSessionState<SortKey>('bt.sort', 'number');
   const [filters, setFilters] = useSessionState<BoxFilters>(`bt.filters.${move.id}`, EMPTY_FILTERS);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [selected, setSelected] = useState<Set<string> | null>(null); // null = not selecting
+  const toast = useToast(2500);
 
   const summary = useMemo(() => summarise(boxes ?? []), [boxes]);
   const visible = useMemo(() => sortBoxes(filterBoxes(boxes ?? [], filters), sort), [boxes, filters, sort]);
@@ -67,7 +77,7 @@ export function BoxListPage({ move }: { move: Move }) {
           </Link>
         }
       />
-      <main className="px-4">
+      <main className={cx('px-4', selected && 'pb-40')}>
         <div className="mb-3">
           <SearchBar />
         </div>
@@ -99,8 +109,23 @@ export function BoxListPage({ move }: { move: Move }) {
             <Stat label="Packed" value={summary.packed} color={STATUS_META.packed.color} />
             <Stat label="Delivered" value={summary.delivered} color={STATUS_META.delivered.color} />
             <Stat label="Unpacked" value={summary.unpacked} color={STATUS_META.unpacked.color} />
-            <Stat label="Missing" value={summary.missing} color="var(--c-missing)" />
+            <Stat
+              label="Missing"
+              value={summary.missing}
+              color="var(--c-missing)"
+              onClick={summary.missing ? () => setFilters({ ...EMPTY_FILTERS, statuses: ['shipped'] }) : undefined}
+            />
           </div>
+          <Link
+            to="/moving-day"
+            className="mt-3 flex min-h-14 items-center gap-3 rounded-2xl bg-accent px-4 font-semibold text-white active:scale-[0.99]"
+          >
+            <span className="text-xl" aria-hidden>
+              🚚
+            </span>
+            <span className="flex-1">Moving day: delivery check &amp; unpacking</span>
+            <span aria-hidden>›</span>
+          </Link>
         </section>
 
         <div className="mt-4 flex gap-3">
@@ -121,6 +146,15 @@ export function BoxListPage({ move }: { move: Move }) {
               <Link to="/labels" className="flex min-h-11 items-center gap-1.5 px-1 text-sm font-semibold text-accent">
                 <IconPrinter width={18} height={18} /> Print labels
               </Link>
+              {!!boxes?.length && (
+                <button
+                  type="button"
+                  className="min-h-11 px-1 text-sm font-semibold text-accent"
+                  onClick={() => setSelected(selected ? null : new Set())}
+                >
+                  {selected ? 'Cancel' : 'Select'}
+                </button>
+              )}
             </span>
           }
         >
@@ -143,12 +177,70 @@ export function BoxListPage({ move }: { move: Move }) {
           <ul className={cx('flex flex-col gap-3')}>
             {visible.map((b) => (
               <li key={b.id}>
-                <BoxRow box={b} itemCount={itemCounts[b.id] ?? 0} />
+                <BoxRow
+                  box={b}
+                  itemCount={itemCounts[b.id] ?? 0}
+                  selection={
+                    selected
+                      ? {
+                          selected: selected.has(b.id),
+                          onToggle: () =>
+                            setSelected((s) => {
+                              const n = new Set(s);
+                              if (n.has(b.id)) n.delete(b.id);
+                              else n.add(b.id);
+                              return n;
+                            }),
+                        }
+                      : undefined
+                  }
+                />
               </li>
             ))}
           </ul>
         )}
       </main>
+
+      {selected && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-3xl bg-surface px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-12px_30px_-10px_rgb(0_0_0/0.7)]"
+          role="region"
+          aria-label="Change status of selected boxes"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold" data-testid="selected-count">
+              {selected.size} selected
+            </span>
+            <button
+              type="button"
+              className="min-h-11 px-2 text-sm font-semibold text-accent"
+              onClick={() => setSelected(selected.size === visible.length ? new Set() : new Set(visible.map((b) => b.id)))}
+            >
+              {selected.size === visible.length && visible.length ? 'Select none' : `Select all (${visible.length})`}
+            </button>
+          </div>
+          <p className="mt-1 text-xs text-muted">Set status to:</p>
+          <div className="no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 py-1">
+            {BOX_STATUSES.map((s) => (
+              <Chip
+                key={s}
+                dot={STATUS_META[s].color}
+                disabled={!selected.size}
+                className="disabled:opacity-40"
+                onClick={async () => {
+                  const n = selected.size;
+                  await setBoxStatus([...selected], s);
+                  setSelected(null);
+                  toast.show(`${n} ${n === 1 ? 'box' : 'boxes'} → ${STATUS_META[s].label}`);
+                }}
+              >
+                {STATUS_META[s].label}
+              </Chip>
+            ))}
+          </div>
+        </div>
+      )}
+      {toast.node}
 
       <FilterSheet
         open={sheetOpen}

@@ -52,14 +52,17 @@ body {
 }
 
 /* Card surface. */
-.card {
-  background: var(--surface);
-  border-radius: 1.25rem;
-}
+/* In the components layer so utility classes (e.g. bg-*, rounded-*) can override them. */
+@layer components {
+  .card {
+    background: var(--surface);
+    border-radius: 1.25rem;
+  }
 
-.inset {
-  background: var(--bg-deep);
-  border-radius: 1rem;
+  .inset {
+    background: var(--bg-deep);
+    border-radius: 1rem;
+  }
 }
 
 /* Round orange "+" button in the bottom bar. */

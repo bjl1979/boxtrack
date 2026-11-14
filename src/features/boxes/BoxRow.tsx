@@ -47,15 +47,33 @@ function NumberBadge({ box }: { box: Box }) {
   );
 }
 
-export function BoxRow({ box, itemCount }: { box: Box; itemCount: number }) {
+export function BoxRow({
+  box,
+  itemCount,
+  selection,
+}: {
+  box: Box;
+  itemCount: number;
+  /** When given, the row toggles selection instead of opening the box. */
+  selection?: { selected: boolean; onToggle: () => void };
+}) {
   const rooms = roomsText(box);
-  return (
-    <Link
-      to={`/boxes/${box.id}`}
-      data-testid="box-row"
-      className="card block p-3 [content-visibility:auto] [contain-intrinsic-size:auto_84px] active:scale-[0.99]"
-    >
+  const className = `card block w-full p-3 text-left [content-visibility:auto] [contain-intrinsic-size:auto_84px] active:scale-[0.99] ${
+    selection?.selected ? 'ring-2 ring-accent' : ''
+  }`;
+  const body = (
+    <>
       <div className="flex items-center gap-3">
+        {selection && (
+          <span
+            aria-hidden
+            className={`grid size-7 shrink-0 place-items-center rounded-lg border-2 text-sm font-bold ${
+              selection.selected ? 'border-accent bg-accent text-white' : 'border-line'
+            }`}
+          >
+            {selection.selected && '✓'}
+          </span>
+        )}
         <NumberBadge box={box} />
         <div className="min-w-0 flex-1">
           <p className={box.label ? 'truncate font-semibold' : 'truncate font-semibold text-muted'}>
@@ -71,6 +89,25 @@ export function BoxRow({ box, itemCount }: { box: Box; itemCount: number }) {
         </div>
       </div>
       <StatusTrack status={box.status} />
+    </>
+  );
+  if (selection)
+    return (
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={selection.selected}
+        aria-label={`Box ${box.number}${box.label ? ` ${box.label}` : ''}`}
+        onClick={selection.onToggle}
+        data-testid="box-row"
+        className={className}
+      >
+        {body}
+      </button>
+    );
+  return (
+    <Link to={`/boxes/${box.id}`} data-testid="box-row" className={className}>
+      {body}
     </Link>
   );
 }

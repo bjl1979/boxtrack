@@ -4,7 +4,7 @@ Offline-first moving-box inventory. Number every box, record what is in it, and 
 "passport" or "drill" straight away. Everything is stored on the phone (IndexedDB); there is no
 server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
 
-**Status:** Phase 5 (QR labels) done.
+**Status:** Phase 6 (moving day) done.
 - **Packing plans** (one per move) on the home screen, each with Packed / Shipped / Delivered progress.
 - Boxes: create/edit/delete, "Save & next box", list with summary, filters and sorting.
 - Items: quick add (type `3x plates` for a quantity), quantity stepper, reorder, move to another box.
@@ -21,6 +21,10 @@ server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
   scale 100 %). You can also print numbered stickers before packing.
 - **Scan:** the QR button (home screen or box list) opens the camera; scanning a label opens that
   box. A sticker with no box yet starts a new box with that number. The camera needs HTTPS.
+- **Moving day:** on the box list tap *Select* to change the status of many boxes at once (e.g. all
+  to *Shipped* when the truck is loaded). *Moving day → Delivery check* shows what has arrived and
+  what is still missing; scan each label (or tap *Arrived*) as boxes come off the truck, with Undo.
+  *Unpacking* lists delivered boxes with "open first" boxes on top; tap *Emptied* when done.
 - Installable PWA that works fully offline. The OCR engine and English language data (~9 MB)
   are bundled and cached on the first visit, so open the app once on Wi-Fi before going offline.
 
