@@ -5,6 +5,7 @@ import {
   setActiveMove,
   setCategories,
   setRooms,
+  setSetting,
   unarchiveMove,
   updateMove,
   useMoves,
@@ -78,7 +79,7 @@ export function SettingsPage() {
           onChange={setTab}
           options={[
             { value: 'moves', label: 'Plans' },
-            { value: 'lists', label: 'Lists' },
+            { value: 'lists', label: 'General' },
             { value: 'ocr', label: 'Photo text' },
             { value: 'backup', label: 'Backup' },
           ]}
@@ -105,6 +106,17 @@ export function SettingsPage() {
 
         {tab === 'lists' && settings && (
           <>
+            <SectionTitle>Appearance</SectionTitle>
+            <Segmented
+              label="Theme"
+              value={settings.theme}
+              onChange={(t) => void setSetting('theme', t)}
+              options={[
+                { value: 'system', label: 'System' },
+                { value: 'light', label: 'Light' },
+                { value: 'dark', label: 'Dark' },
+              ]}
+            />
             <SectionTitle>Rooms</SectionTitle>
             <ListEditor label="Rooms" values={settings.rooms} onChange={(v) => void setRooms(v)} />
             <SectionTitle>Categories</SectionTitle>

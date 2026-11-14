@@ -16,7 +16,7 @@ export function StatusTrack({ status, onDark }: { status: BoxStatus; onDark?: bo
                 aria-hidden
                 className={cx(
                   'absolute top-[6px] right-1/2 left-[-50%] border-t-2 border-dotted',
-                  i <= current ? (onDark ? 'border-white' : 'border-accent') : onDark ? 'border-white/40' : 'border-line',
+                  i <= current ? (onDark ? 'border-on-accent' : 'border-accent') : onDark ? 'border-on-accent/40' : 'border-line',
                 )}
               />
             )}
@@ -25,15 +25,15 @@ export function StatusTrack({ status, onDark }: { status: BoxStatus; onDark?: bo
                 'relative z-10 size-3.5 rounded-full border-2',
                 done
                   ? onDark
-                    ? 'border-white bg-white'
+                    ? 'border-on-accent bg-on-accent'
                     : 'border-accent bg-accent'
                   : onDark
-                    ? 'border-white/50 bg-transparent'
+                    ? 'border-on-accent/50 bg-transparent'
                     : 'border-line bg-bg-deep',
-                i === current && 'ring-4 ' + (onDark ? 'ring-white/30' : 'ring-accent/30'),
+                i === current && 'ring-4 ' + (onDark ? 'ring-on-accent/30' : 'ring-accent/30'),
               )}
             />
-            <span className={cx('text-[10px]', onDark ? 'text-white/90' : done ? 'text-text' : 'text-muted')}>
+            <span className={cx('text-[10px]', onDark ? 'text-on-accent/90' : done ? 'text-text' : 'text-muted')}>
               {STATUS_META[s].label}
             </span>
           </li>

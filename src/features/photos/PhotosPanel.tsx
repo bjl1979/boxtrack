@@ -66,7 +66,7 @@ export function PhotosPanel({
           type="button"
           onClick={() => cameraRef.current?.click()}
           disabled={!!progress}
-          className="flex min-h-20 flex-col items-center justify-center gap-1 rounded-2xl bg-accent font-semibold text-white shadow-[0_8px_20px_-8px_var(--accent)] active:scale-95 disabled:opacity-50"
+          className="flex min-h-20 flex-col items-center justify-center gap-1 rounded-2xl bg-accent font-semibold text-on-accent shadow-[0_8px_20px_-8px_var(--accent)] active:scale-95 disabled:opacity-50"
         >
           <IconCamera /> Take photo
         </button>

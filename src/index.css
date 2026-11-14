@@ -12,6 +12,8 @@
   --accent: #ea7a2f;
   --accent-2: #f39a55;
   --danger: #fb7185;
+  /* Text/icons on orange: dark, because white on this orange is only 2.9:1 (hard to read outdoors). */
+  --on-accent: #161618;
 
   --c-packing: #d6d6d6;
   --c-packed: #f0a35e;
@@ -23,6 +25,49 @@
   color-scheme: dark;
 }
 
+:root[data-theme='light'] {
+  --bg: #f4f2ef;
+  --bg-deep: #e7e3dd;
+  --surface: #ffffff;
+  --surface-2: #efece7;
+  --line: #d3cec6;
+  --text: #1c1b1a;
+  --muted: #5f5b56;
+  --accent: #c2410c;
+  --accent-2: #dd5a1b;
+  --on-accent: #ffffff;
+  --danger: #be123c;
+  --c-packing: #8b8b92;
+  --c-packed: #d97706;
+  --c-shipped: #c2410c;
+  --c-delivered: #15803d;
+  --c-unpacked: #57534e;
+  --c-missing: #be123c;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --bg: #f4f2ef;
+    --bg-deep: #e7e3dd;
+    --surface: #ffffff;
+    --surface-2: #efece7;
+    --line: #d3cec6;
+    --text: #1c1b1a;
+    --muted: #5f5b56;
+    --accent: #c2410c;
+    --accent-2: #dd5a1b;
+    --on-accent: #ffffff;
+    --danger: #be123c;
+    --c-packing: #8b8b92;
+    --c-packed: #d97706;
+    --c-shipped: #c2410c;
+    --c-delivered: #15803d;
+    --c-unpacked: #57534e;
+    --c-missing: #be123c;
+    color-scheme: light;
+  }
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-deep: var(--bg-deep);
@@ -32,6 +77,7 @@
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
   --color-danger: var(--danger);
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }

@@ -40,7 +40,7 @@ function NumberBadge({ box }: { box: Box }) {
           <span className="absolute inset-0 bg-black/45" aria-hidden />
         </>
       )}
-      <span className="relative text-2xl font-bold tabular-nums text-white [text-shadow:0_1px_4px_rgb(0_0_0/0.6)]">
+      <span className={`relative text-2xl font-bold tabular-nums ${thumb ? 'text-white [text-shadow:0_1px_4px_rgb(0_0_0/0.6)]' : ''}`}>
         {box.number}
       </span>
     </div>
@@ -68,7 +68,7 @@ export function BoxRow({
           <span
             aria-hidden
             className={`grid size-7 shrink-0 place-items-center rounded-lg border-2 text-sm font-bold ${
-              selection.selected ? 'border-accent bg-accent text-white' : 'border-line'
+              selection.selected ? 'border-accent bg-accent text-on-accent' : 'border-line'
             }`}
           >
             {selection.selected && '✓'}

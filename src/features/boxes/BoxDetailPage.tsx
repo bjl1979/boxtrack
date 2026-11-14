@@ -105,16 +105,16 @@ export function BoxDetailPage() {
         }
       />
       <main className="px-4 pb-10">
-        <div className="relative overflow-hidden rounded-3xl hero-card p-5 text-white shadow-xl">
-          <div className="absolute -top-10 -right-10 size-40 rounded-full bg-white/10" aria-hidden />
-          <p className="text-xs font-semibold tracking-[0.2em] text-white/70">BOX</p>
+        <div className="relative overflow-hidden rounded-3xl hero-card p-5 text-on-accent shadow-xl">
+          <div className="absolute -top-10 -right-10 size-40 rounded-full bg-on-accent/10" aria-hidden />
+          <p className="text-xs font-semibold tracking-[0.2em] text-on-accent/70">BOX</p>
           <p className="text-7xl leading-none font-bold tabular-nums" data-testid="box-number">
             {box.number}
           </p>
           <p className="mt-3 text-xl font-semibold">{box.label ?? 'No label'}</p>
-          <p className="text-white/80">{roomsText(box) || 'No room set'}</p>
+          <p className="text-on-accent/80">{roomsText(box) || 'No room set'}</p>
           <div className="mt-4 flex items-end justify-between">
-            <div className="text-sm text-white/80">
+            <div className="text-sm text-on-accent/80">
               {[box.category, box.size && `Size ${box.size}`, box.weightKg !== undefined && `${box.weightKg} kg`]
                 .filter(Boolean)
                 .join(' · ')}

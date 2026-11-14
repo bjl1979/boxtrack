@@ -20,7 +20,7 @@ function ActionTile({ label, icon, badge, onClick }: { label: string; icon: Reac
       <span className="text-text">{icon}</span>
       {label}
       {!!badge && (
-        <span className="absolute top-2 right-2 grid size-5 place-items-center rounded-full bg-accent text-[11px] font-bold text-white">
+        <span className="absolute top-2 right-2 grid size-5 place-items-center rounded-full bg-accent text-[11px] font-bold text-on-accent">
           {badge}
         </span>
       )}
@@ -120,7 +120,7 @@ export function BoxListPage({ move }: { move: Move }) {
           </div>
           <Link
             to="/moving-day"
-            className="mt-3 flex min-h-14 items-center gap-3 rounded-2xl bg-accent px-4 font-semibold text-white active:scale-[0.99]"
+            className="mt-3 flex min-h-14 items-center gap-3 rounded-2xl bg-accent px-4 font-semibold text-on-accent active:scale-[0.99]"
           >
             <span className="text-xl" aria-hidden>
               🚚
@@ -168,7 +168,7 @@ export function BoxListPage({ move }: { move: Move }) {
             title="No boxes yet"
             body="Stick a numbered label on your first box, then tap the orange + button."
             action={
-              <Link to="/boxes/new" className="mt-2 rounded-2xl bg-accent px-5 py-3 font-semibold text-white">
+              <Link to="/boxes/new" className="mt-2 rounded-2xl bg-accent px-5 py-3 font-semibold text-on-accent">
                 Add box 1
               </Link>
             }

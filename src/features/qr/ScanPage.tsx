@@ -75,7 +75,7 @@ export function ScanPage({ move }: { move: Move }) {
             value={typed}
             onChange={(e) => setTyped(e.target.value.replace(/\D/g, ''))}
           />
-          <button type="submit" disabled={!typed} className="min-h-12 rounded-2xl bg-[var(--accent)] px-5 font-semibold disabled:opacity-40">
+          <button type="submit" disabled={!typed} className="min-h-12 rounded-2xl bg-[var(--accent)] px-5 font-semibold text-on-accent disabled:opacity-40">
             Open
           </button>
         </form>

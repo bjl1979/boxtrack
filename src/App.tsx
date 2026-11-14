@@ -1,7 +1,9 @@
 import type { ReactElement } from 'react';
+import { useEffect } from 'react';
 import { Navigate, Outlet, createHashRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
-import { useActiveMove, type Move } from './db';
+import { useActiveMove, useSettings, type Move } from './db';
+import { applyTheme } from './lib/theme';
 import { PlainLayout, TabLayout } from './components/AppShell';
 import { UpdatePrompt } from './components/UpdatePrompt';
 import { BoxListPage } from './features/boxes/BoxListPage';
@@ -23,6 +25,10 @@ function WithMove({ render }: { render: (move: Move) => ReactElement }) {
 }
 
 function Root() {
+  const theme = useSettings()?.theme;
+  useEffect(() => {
+    if (theme) applyTheme(theme);
+  }, [theme]);
   return (
     <>
       <Outlet />

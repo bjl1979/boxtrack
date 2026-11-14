@@ -30,7 +30,7 @@ function PlanTrack({ stats, onAccent }: { stats: MoveStats; onAccent: boolean })
                 aria-hidden
                 className={cx(
                   'absolute top-[6px] right-1/2 left-[-50%] border-t-2 border-dotted',
-                  started ? (onAccent ? 'border-white' : 'border-accent') : onAccent ? 'border-white/40' : 'border-line',
+                  started ? (onAccent ? 'border-on-accent' : 'border-accent') : onAccent ? 'border-on-accent/40' : 'border-line',
                 )}
               />
             )}
@@ -39,10 +39,10 @@ function PlanTrack({ stats, onAccent }: { stats: MoveStats; onAccent: boolean })
                 'relative z-10 size-3.5 rounded-full border-2',
                 onAccent
                   ? done
-                    ? 'border-white bg-white'
+                    ? 'border-on-accent bg-on-accent'
                     : started
-                      ? 'border-white bg-[var(--accent)]'
-                      : 'border-white/50 bg-[var(--accent)]'
+                      ? 'border-on-accent bg-[var(--accent)]'
+                      : 'border-on-accent/50 bg-[var(--accent)]'
                   : done
                     ? 'border-accent bg-accent'
                     : started
@@ -50,7 +50,7 @@ function PlanTrack({ stats, onAccent }: { stats: MoveStats; onAccent: boolean })
                       : 'border-line bg-bg-deep',
               )}
             />
-            <span className={cx('text-[11px]', onAccent ? 'text-white' : started ? 'text-text' : 'text-muted')}>
+            <span className={cx('text-[11px]', onAccent ? 'text-on-accent' : started ? 'text-text' : 'text-muted')}>
               {s.label} {stats.total ? `${s.n}/${stats.total}` : ''}
             </span>
           </li>
@@ -67,14 +67,14 @@ function PlanCard({ move, stats, onOpen }: { move: Move; stats: MoveStats; onOpe
       type="button"
       onClick={onOpen}
       data-testid="plan-card"
-      className={cx('w-full rounded-3xl p-4 text-left active:scale-[0.99]', hot ? 'bg-accent text-white' : 'card')}
+      className={cx('w-full rounded-3xl p-4 text-left active:scale-[0.99]', hot ? 'bg-accent text-on-accent' : 'card')}
     >
       <div className="flex items-start gap-3">
         <p className="min-w-0 flex-1 text-lg leading-tight font-semibold">{move.name}</p>
         <span
           className={cx(
             'shrink-0 rounded-full px-3 py-1 text-xs font-semibold',
-            hot ? 'bg-white/25 text-white' : 'bg-bg-deep text-muted',
+            hot ? 'bg-on-accent/25 text-on-accent' : 'bg-bg-deep text-muted',
           )}
         >
           {hot ? 'Active' : `${stats.total} ${stats.total === 1 ? 'box' : 'boxes'}`}
@@ -82,16 +82,16 @@ function PlanCard({ move, stats, onOpen }: { move: Move; stats: MoveStats; onOpe
       </div>
       <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
         <div>
-          <p className={hot ? 'text-white/70' : 'text-muted'}>From</p>
+          <p className={hot ? 'text-on-accent/70' : 'text-muted'}>From</p>
           <p className="truncate">{move.fromAddress || '—'}</p>
         </div>
         <div>
-          <p className={hot ? 'text-white/70' : 'text-muted'}>To</p>
+          <p className={hot ? 'text-on-accent/70' : 'text-muted'}>To</p>
           <p className="truncate">{move.toAddress || '—'}</p>
         </div>
       </div>
       {hot && (
-        <p className="mt-3 text-sm text-white/85">
+        <p className="mt-3 text-sm text-on-accent/85">
           {stats.total} {stats.total === 1 ? 'box' : 'boxes'}
           {stats.total > stats.delivered && stats.shipped > stats.delivered
             ? ` · ${stats.shipped - stats.delivered} on the way`
@@ -153,7 +153,7 @@ export function PlansHomePage() {
             onClick={() => setCreating(true)}
             className="card mt-6 flex min-h-16 w-full items-center gap-4 rounded-full p-2 pr-6 text-left active:scale-[0.99]"
           >
-            <span className="grid size-12 place-items-center rounded-full bg-accent text-white">
+            <span className="grid size-12 place-items-center rounded-full bg-accent text-on-accent">
               <IconBoxes />
             </span>
             <span className="flex-1 text-center font-semibold">Get started</span>

@@ -195,7 +195,7 @@ export function PhotoViewer({
           <button
             type="button"
             onClick={() => onText(photo)}
-            className="relative min-h-13 rounded-2xl bg-[var(--accent)] px-4 text-sm font-semibold text-white"
+            className="relative min-h-13 rounded-2xl bg-[var(--accent)] px-4 text-sm font-semibold text-on-accent"
           >
             Text in photo
             {photo.ocrStatus === 'pending' && (

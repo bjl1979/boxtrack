@@ -128,7 +128,7 @@ export function LabelsPage({ move }: { move: Move }) {
             onClick={() => setIncludeEmpty(!includeEmpty)}
             className="card flex min-h-12 items-center gap-3 px-4 text-left text-sm"
           >
-            <span className={cx('grid size-6 shrink-0 place-items-center rounded-md border-2', includeEmpty ? 'border-accent bg-accent text-white' : 'border-line')}>
+            <span className={cx('grid size-6 shrink-0 place-items-center rounded-md border-2', includeEmpty ? 'border-accent bg-accent text-on-accent' : 'border-line')}>
               {includeEmpty && '✓'}
             </span>
             Include numbers that have no box yet (print stickers before packing)

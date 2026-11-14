@@ -43,7 +43,7 @@ function ItemPicker({ boxId, text, onDone }: { boxId: string; text: string; onDo
               <span
                 className={cx(
                   'grid size-6 shrink-0 place-items-center rounded-md border-2',
-                  picked.has(i) ? 'border-accent bg-accent text-white' : 'border-line',
+                  picked.has(i) ? 'border-accent bg-accent text-on-accent' : 'border-line',
                 )}
               >
                 {picked.has(i) && <IconCheck width={16} height={16} />}

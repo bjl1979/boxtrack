@@ -76,7 +76,7 @@ export function ItemsPanel({ box, highlightId }: { box: Box; highlightId?: strin
           enterKeyHint="enter"
           autoComplete="off"
         />
-        <button type="submit" aria-label="Add item" disabled={!draft.trim()} className="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent text-white disabled:opacity-40">
+        <button type="submit" aria-label="Add item" disabled={!draft.trim()} className="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent text-on-accent disabled:opacity-40">
           <IconPlus />
         </button>
       </form>
@@ -125,7 +125,7 @@ export function ItemsPanel({ box, highlightId }: { box: Box; highlightId?: strin
                   <span
                     className={cx(
                       'grid size-6 shrink-0 place-items-center rounded-md border-2',
-                      selected.has(item.id) ? 'border-accent bg-accent text-white' : 'border-line',
+                      selected.has(item.id) ? 'border-accent bg-accent text-on-accent' : 'border-line',
                     )}
                   >
                     {selected.has(item.id) && <IconCheck width={16} height={16} />}

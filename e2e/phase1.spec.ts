@@ -94,7 +94,7 @@ test('manage moves in settings', async ({ page }) => {
   await expect(page.getByTestId('move-card').filter({ hasText: 'Second move' })).toContainText('Active');
 
   // Edit room list.
-  await page.getByRole('radio', { name: 'Lists' }).click();
+  await page.getByRole('radio', { name: 'General' }).click();
   await page.getByLabel('New room').fill('Loft');
   await page.getByRole('button', { name: 'Add' }).first().click();
   await expect(page.getByRole('list', { name: 'Rooms' })).toContainText('Loft');

@@ -186,17 +186,17 @@ export function BoxForm({
     >
       <div className="relative overflow-hidden rounded-3xl hero-card p-5 shadow-xl">
         <label className="flex flex-col gap-1">
-          <span className="text-xs font-semibold tracking-[0.2em] text-white/70">BOX NUMBER</span>
+          <span className="text-xs font-semibold tracking-[0.2em] text-on-accent/70">BOX NUMBER</span>
           <input
             aria-label="Box number"
             inputMode="numeric"
             pattern="[0-9]*"
             value={v.number}
             onChange={(e) => set('number', e.target.value.replace(/\D/g, ''))}
-            className="w-full bg-transparent text-6xl font-bold tabular-nums text-white outline-none"
+            className="w-full bg-transparent text-6xl font-bold tabular-nums text-on-accent outline-none"
           />
         </label>
-        <p role={dupe || (!numberValid && v.number !== '') ? 'alert' : undefined} className="min-h-5 text-sm text-white">
+        <p role={dupe || (!numberValid && v.number !== '') ? 'alert' : undefined} className="min-h-5 text-sm text-on-accent">
           {dupe ? `⚠ Box ${num} already exists in this move` : !numberValid ? 'Enter a number of 1 or more' : ''}
         </p>
       </div>
