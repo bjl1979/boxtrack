@@ -4,7 +4,7 @@ Offline-first moving-box inventory. Number every box, record what is in it, and 
 "passport" or "drill" straight away. Everything is stored on the phone (IndexedDB); there is no
 server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
 
-**Status:** Phase 7 (export & backup) done.
+**Status:** all 8 phases of SPEC.md are done.
 - **Packing plans** (one per move) on the home screen, each with Packed / Shipped / Delivered progress.
 - Boxes: create/edit/delete, "Save & next box", list with summary, filters and sorting.
 - Items: quick add (type `3x plates` for a quantity), quantity stepper, reorder, move to another box.
@@ -25,6 +25,8 @@ server, no login and no analytics. See [SPEC.md](SPEC.md) for the full spec.
   to *Shipped* when the truck is loaded). *Moving day → Delivery check* shows what has arrived and
   what is still missing; scan each label (or tap *Arrived*) as boxes come off the truck, with Undo.
   *Unpacking* lists delivered boxes with "open first" boxes on top; tap *Emptied* when done.
+- **Light / dark / system theme** (Settings → General). Text on orange buttons is dark in the
+  dark theme because white on that orange is hard to read outdoors.
 - Installable PWA that works fully offline. The OCR engine and English language data (~9 MB)
   are bundled and cached on the first visit, so open the app once on Wi-Fi before going offline.
 
@@ -58,6 +60,29 @@ A reminder appears on the home screen when you have more than 10 boxes and no ba
 **Exports** (Settings → Backup, for the active plan): an **Inventory PDF** for the movers or an
 insurance claim, and **Excel / CSV** with one row per item.
 
+## Publishing the app (GitHub Pages)
+
+The camera and installing to the home screen need HTTPS, so the app has to be hosted. GitHub Pages
+is free for public repositories and the workflow is already in `.github/workflows/deploy.yml`.
+
+1. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions** (one time).
+2. Merge the work into `main` (or run the *Deploy to GitHub Pages* workflow by hand from the
+   Actions tab). The workflow runs the unit tests, builds for `/<repo>/` and publishes.
+3. On the phone, open `https://<your-user>.github.io/boxtrack/` in Chrome, wait for
+   "ready to work offline", then **⋮ → Add to Home screen**.
+
+Each later push to `main` publishes a new version; the app shows "A new version of BoxTrack is
+ready – Update". Your data is not affected by updates.
+
+Other static hosts work too: run `npm run build` and upload the `dist` folder (e.g. drag it onto
+Netlify Drop). For a sub-path build use `BASE_PATH=/sub/path/ npm run build`.
+
+## Performance
+
+`npm run perf` loads 300 boxes, 1,500 items and 1,500 photos (≈100 MB) and measures the app with
+the CPU slowed 4× (roughly a mid-range Android phone). Last result: box list 0.24 s, no janky
+frames while scrolling all 300 boxes, search 0.05–0.46 s, 27 MB JavaScript memory.
+
 ## Development
 
 ```bash
@@ -70,6 +95,7 @@ npm run build     # type-check + production build (with service worker)
 npm run preview   # serve the production build on the LAN
 npm test          # Vitest unit tests (data layer, filters, form)
 npm run e2e       # build, then Playwright end-to-end tests at 390×844
+npm run perf      # performance check with 300 boxes / 1,500 photos
 ```
 
 Testing on a phone over the LAN: `http://<pc-ip>:5173` is not a secure origin, so the service

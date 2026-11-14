@@ -11,12 +11,34 @@ import { BoxRow } from './BoxRow';
 import { SearchBar } from '../search/SearchBar';
 import { BackupReminder } from '../export/BackupReminder';
 import { FilterSheet } from './FilterSheet';
-import { EMPTY_FILTERS, activeFilterCount, filterBoxes, sortBoxes, summarise, type BoxFilters, type SortKey } from './filters';
+import {
+  EMPTY_FILTERS,
+  activeFilterCount,
+  filterBoxes,
+  sortBoxes,
+  summarise,
+  type BoxFilters,
+  type SortKey,
+} from './filters';
 import { STATUS_META } from './statusMeta';
 
-function ActionTile({ label, icon, badge, onClick }: { label: string; icon: ReactNode; badge?: number; onClick: () => void }) {
+function ActionTile({
+  label,
+  icon,
+  badge,
+  onClick,
+}: {
+  label: string;
+  icon: ReactNode;
+  badge?: number;
+  onClick: () => void;
+}) {
   return (
-    <button type="button" onClick={onClick} className="card relative flex min-h-20 flex-1 flex-col items-center justify-center gap-1.5 text-xs text-muted active:scale-95">
+    <button
+      type="button"
+      onClick={onClick}
+      className="card relative flex min-h-20 flex-1 flex-col items-center justify-center gap-1.5 text-xs text-muted active:scale-95"
+    >
       <span className="text-text">{icon}</span>
       {label}
       {!!badge && (
@@ -38,7 +60,12 @@ function Stat({ label, value, color, onClick }: { label: string; value: number; 
     </>
   );
   return onClick ? (
-    <button type="button" onClick={onClick} className="flex min-h-11 flex-col items-center" aria-label={`${value} ${label}, show them`}>
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex min-h-11 flex-col items-center"
+      aria-label={`${value} ${label}, show them`}
+    >
       {inner}
     </button>
   ) : (
@@ -83,59 +110,83 @@ export function BoxListPage({ move }: { move: Move }) {
           <SearchBar />
           <BackupReminder />
         </div>
-        <Segmented
-          label="Sort boxes"
-          value={sort}
-          onChange={setSort}
-          options={[
-            { value: 'number', label: 'By number' },
-            { value: 'updated', label: 'Last updated' },
-          ]}
-        />
-
-        <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 py-1" aria-label="Filter by status">
-          {BOX_STATUSES.map((s) => (
-            <Chip key={s} dot={STATUS_META[s].color} selected={filters.statuses.includes(s)} onClick={() => toggleStatus(s)}>
-              {STATUS_META[s].label}: {summary.byStatus[s]}
-            </Chip>
-          ))}
-        </div>
-
-        <section aria-label="Summary" className="mt-4">
-          <StatusRing
-            byStatus={summary.byStatus}
-            total={summary.total}
-            caption={summary.total ? `${summary.packed} packed` : 'Tap + to add a box'}
-          />
-          <div className="card mt-3 grid grid-cols-4 py-3">
-            <Stat label="Packed" value={summary.packed} color={STATUS_META.packed.color} />
-            <Stat label="Delivered" value={summary.delivered} color={STATUS_META.delivered.color} />
-            <Stat label="Unpacked" value={summary.unpacked} color={STATUS_META.unpacked.color} />
-            <Stat
-              label="Missing"
-              value={summary.missing}
-              color="var(--c-missing)"
-              onClick={summary.missing ? () => setFilters({ ...EMPTY_FILTERS, statuses: ['shipped'] }) : undefined}
+        {!!boxes?.length && (
+          <>
+            <Segmented
+              label="Sort boxes"
+              value={sort}
+              onChange={setSort}
+              options={[
+                { value: 'number', label: 'By number' },
+                { value: 'updated', label: 'Last updated' },
+              ]}
             />
-          </div>
-          <Link
-            to="/moving-day"
-            className="mt-3 flex min-h-14 items-center gap-3 rounded-2xl bg-accent px-4 font-semibold text-on-accent active:scale-[0.99]"
-          >
-            <span className="text-xl" aria-hidden>
-              🚚
-            </span>
-            <span className="flex-1">Moving day: delivery check &amp; unpacking</span>
-            <span aria-hidden>›</span>
-          </Link>
-        </section>
 
-        <div className="mt-4 flex gap-3">
-          <ActionTile label="Room" icon={<IconFilter />} badge={filters.rooms.length} onClick={() => setSheetOpen(true)} />
-          <ActionTile label="Category" icon={<IconTag />} badge={filters.categories.length} onClick={() => setSheetOpen(true)} />
-          <ActionTile label="Flags" icon={<IconFlag />} badge={filters.flags.length} onClick={() => setSheetOpen(true)} />
-          <ActionTile label="Clear" icon={<IconX />} onClick={() => setFilters(EMPTY_FILTERS)} />
-        </div>
+            <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 py-1" aria-label="Filter by status">
+              {BOX_STATUSES.map((s) => (
+                <Chip
+                  key={s}
+                  dot={STATUS_META[s].color}
+                  selected={filters.statuses.includes(s)}
+                  onClick={() => toggleStatus(s)}
+                >
+                  {STATUS_META[s].label}: {summary.byStatus[s]}
+                </Chip>
+              ))}
+            </div>
+
+            <section aria-label="Summary" className="mt-4">
+              <StatusRing
+                byStatus={summary.byStatus}
+                total={summary.total}
+                caption={summary.total ? `${summary.packed} packed` : 'Tap + to add a box'}
+              />
+              <div className="card mt-3 grid grid-cols-4 py-3">
+                <Stat label="Packed" value={summary.packed} color={STATUS_META.packed.color} />
+                <Stat label="Delivered" value={summary.delivered} color={STATUS_META.delivered.color} />
+                <Stat label="Unpacked" value={summary.unpacked} color={STATUS_META.unpacked.color} />
+                <Stat
+                  label="Missing"
+                  value={summary.missing}
+                  color="var(--c-missing)"
+                  onClick={summary.missing ? () => setFilters({ ...EMPTY_FILTERS, statuses: ['shipped'] }) : undefined}
+                />
+              </div>
+              <Link
+                to="/moving-day"
+                className="mt-3 flex min-h-14 items-center gap-3 rounded-2xl bg-accent px-4 font-semibold text-on-accent active:scale-[0.99]"
+              >
+                <span className="text-xl" aria-hidden>
+                  🚚
+                </span>
+                <span className="flex-1">Moving day: delivery check &amp; unpacking</span>
+                <span aria-hidden>›</span>
+              </Link>
+            </section>
+
+            <div className="mt-4 flex gap-3">
+              <ActionTile
+                label="Room"
+                icon={<IconFilter />}
+                badge={filters.rooms.length}
+                onClick={() => setSheetOpen(true)}
+              />
+              <ActionTile
+                label="Category"
+                icon={<IconTag />}
+                badge={filters.categories.length}
+                onClick={() => setSheetOpen(true)}
+              />
+              <ActionTile
+                label="Flags"
+                icon={<IconFlag />}
+                badge={filters.flags.length}
+                onClick={() => setSheetOpen(true)}
+              />
+              <ActionTile label="Clear" icon={<IconX />} onClick={() => setFilters(EMPTY_FILTERS)} />
+            </div>
+          </>
+        )}
 
         <SectionTitle
           action={
@@ -216,7 +267,9 @@ export function BoxListPage({ move }: { move: Move }) {
             <button
               type="button"
               className="min-h-11 px-2 text-sm font-semibold text-accent"
-              onClick={() => setSelected(selected.size === visible.length ? new Set() : new Set(visible.map((b) => b.id)))}
+              onClick={() =>
+                setSelected(selected.size === visible.length ? new Set() : new Set(visible.map((b) => b.id)))
+              }
             >
               {selected.size === visible.length && visible.length ? 'Select none' : `Select all (${visible.length})`}
             </button>
