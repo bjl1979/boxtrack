@@ -145,9 +145,9 @@ export function SettingsPage() {
               ]}
             />
             <SectionTitle>Rooms</SectionTitle>
-            <ListEditor label="Rooms" values={settings.rooms} onChange={(v) => void setRooms(v)} />
+            <ListEditor label="Rooms" singular="room" values={settings.rooms} onChange={(v) => void setRooms(v)} />
             <SectionTitle>Categories</SectionTitle>
-            <ListEditor label="Categories" values={settings.categories} onChange={(v) => void setCategories(v)} />
+            <ListEditor label="Categories" singular="category" values={settings.categories} onChange={(v) => void setCategories(v)} />
             <SectionTitle>About &amp; updates</SectionTitle>
             <AboutSettings />
           </>
